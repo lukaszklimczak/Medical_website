@@ -1,0 +1,68 @@
+/* navigation bar */
+.navbar {
+    position: absolute;
+    z-index: 4;
+    top: 0;
+    overflow: auto;
+    width: 100%;
+    opacity: 0.8;
+}
+
+.nav-item {
+    margin: 5px 10px;
+    font-size: 1rem;
+}
+
+.search {
+    position: absolute;
+    right: 0;
+    margin-right: 20px;
+}
+
+/*middle container */
+
+.middle-container {
+    margin: 100px auto 20px auto;
+    /*padding: 25px; */
+    text-align: center;
+    position: relative;
+    font-family: Garamond, serif;
+}
+
+.background-photo {
+    /*margin: 0 auto;*/
+    width: 70%;
+    z-index: 2;
+
+}
+
+.main-name {
+    z-index: 3;
+    position: absolute;
+    top: 2%;
+    left: 18%;
+    text-align: left;
+    font-weight: bold;
+    font-size: 3vw;
+}
+
+.description {
+    z-index: 3;
+    position: absolute;
+    top: 10%;
+    left: 18%;
+    text-align: left;
+    font-weight: bold;
+    font-size: 2vw;
+}
+
+.bottom-motto {
+    margin-bottom: 0px;
+    z-index: 3;
+    position: absolute;
+    bottom: 10%;
+    left: 18%;
+    color: white;
+    font-size: 3vw;
+    font-weight: bold;
+}
