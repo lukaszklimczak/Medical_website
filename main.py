@@ -13,6 +13,37 @@ Bootstrap(app)
 def about():
     return render_template("about.html")
 
+
+@app.route('/online-therapy')
+def online_therapy():
+    return render_template("online-therapy.html")
+
+
+@app.route('/mobile-advice')
+def mobile_advice():
+    return render_template("mobile-advice.html")
+
+
+@app.route('/couple-therapy')
+def couple_therapy():
+    return render_template("couple-therapy.html")
+
+
+@app.route('/phobies')
+def phobies():
+    return render_template("phobies.html")
+
+
+@app.route('/stress')
+def stress():
+    return render_template("stress.html")
+
+
+@app.route('/depression')
+def depression():
+    return render_template("depression.html")
+
+
 @app.route('/contact')
 def contact():
     return render_template("contact.html")
