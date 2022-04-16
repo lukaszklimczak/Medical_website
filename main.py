@@ -44,11 +44,14 @@ def depression():
     return render_template("depression.html")
 
 
+@app.route('/our_team')
+def team():
+    return render_template('team.html')
+
+
 @app.route('/contact')
 def contact():
     return render_template("contact.html")
-
-
 
 
 if __name__ == "__main__":
