@@ -1,0 +1,58 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="team-container">
+    <div class="wrapper">
+        <div class="row">
+            <div class="col-lg-4 col-md-12">
+            </div>
+            <div class="col-lg-8 col-md-12">
+            <h1 style="color: black;">Nasz zespół</h1>
+            </div>
+        </div>
+        <div class="row team-member-container">
+            <div class="col-lg-4 col-md-12">
+                <img src="{{url_for('static',filename ='img/house.png')}}" alt="Dr House"/>
+            </div>
+            <div class="col-lg-8 col-md-12">
+                <div class="wrapper-text">
+                <h3>dr Gregory House</h3>
+                <h5>Psycholog</h5>
+                <p>Dr Gregory House nunc congue nisi vitae suscipit tellus. Egestas sed tempus urna nisi vitae suscipit tellus... </p>
+                <button type="button" class="btn btn-info">Czytaj więcej...</button>
+                </div>
+            </div>
+        </div>
+        <div class="row team-member-container">
+            <div class="col-lg-4 col-md-12">
+                <img src="{{url_for('static',filename ='img/lubicz.png')}}" alt="Dr Lubicz"/>
+            </div>
+            <div class="col-lg-8 col-md-12">
+                <div class="wrapper-text">
+                <h3>mgr Paweł Lubicz</h3>
+                <h5>Psycholog, psychoterapeuta</h5>
+                <p>Mgr Paweł Lubicz unc congue nisi vitae suscipit tellus nisi vitae suscipit tellus... </p>
+                <button type="button" class="btn btn-info">Czytaj więcej...</button>
+                </div>
+            </div>
+        </div>
+        <div class="row team-member-container">
+            <div class="col-lg-4 col-md-12">
+                <img src="{{url_for('static',filename ='img/zosia.png')}}" alt="Dr Foremniak"/>
+            </div>
+            <div class="col-lg-8 col-md-12">
+                <div class="wrapper-text">
+                <h3>mgr Zofia Burska</h3>
+                <h5>Psycholog uzależnień, psychiatra</h5>
+                <p>Mgr Zofia Burska congue nisi vitae suscipit tellus. Onon tellus orci nisi vitae suscipit tellus... </p>
+                <button type="button" class="btn btn-info">Czytaj więcej...</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block footer %}
+    {% include 'footer.html' %}
+{% endblock %}

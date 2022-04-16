@@ -33,7 +33,6 @@
     /*margin: 0 auto;*/
     width: 70%;
     z-index: 2;
-
 }
 
 .main-name {
@@ -94,12 +93,13 @@
 
 .wrapper {
     position: relative;
-    width: 85%;
+    width: 80%;
     margin: 20px auto 20px auto;
 }
 
 .wrapper-text {
     line-height: 2rem;
+    color: black;
 }
 
 .service-img {
@@ -117,11 +117,6 @@
     font-size: 0.9vw;
     font-weight: bold;
     margin: 20px;
-}
-
-.text-column {
-    text-align: left;
-    line-height: 2rem;
 }
 
 /* services container */
@@ -149,11 +144,27 @@ h1, h4 {
     height: 7rem;
 }
 
+.team-container {
+    margin: 100px auto 0;
+    /*padding: 25px; */
+    position: relative;
+    font-family: Sans-serif;
+}
+
+.team-member-container {
+    margin: 100px 0 100px 0;
+}
+
+.map {
+    text-align: center;
+}
+
 .footer {
     position: relative;
     bottom: 0;
     left: 0;
     width: 100%;
+    margin-top: 100px;
     background-color: #e3f2fd;
     color: #808080;
     line-height: 2pt;

@@ -4,7 +4,7 @@
     {% block head %}
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>To się w głowie nie mieści</title>
+    <title>W głowie się nie mieści</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.1/dist/css/bootstrap.min.css" integrity="sha384-zCbKRCUGaJDkqS1kPbPd7TveP5iyJE0EjAuZQTgFLD2ylzuqKfdKlfG/eSrtxUkn" crossorigin="anonymous">
     <link href="{{ url_for('static', filename='css/styles.css')}}" rel="stylesheet">
     <link href="{{ url_for('static', filename='css/styles.css')}}" rel="stylesheet">
@@ -30,7 +30,7 @@
                     <a class="nav-link" href="{{url_for('about')}}">O Nas</a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" href="#">Nasz Zespół</a>
+                    <a class="nav-link" href="{{url_for('team')}}">Nasz Zespół</a>
                 </li>
                 <li class="nav-item">
                     <a class="nav-link" href="#">Umów wizytę</a>
