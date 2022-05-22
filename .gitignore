@@ -12,3 +12,6 @@ pythonenv*
 /. idea/
 .idea/
 .idea
+
+.db
+.sqdpro

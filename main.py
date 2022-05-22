@@ -1,5 +1,6 @@
 from flask import Flask, render_template, url_for, redirect, flash, abort, session
 from flask_bootstrap import Bootstrap
+from flask_ckeditor import CKEditor
 from flask_login import LoginManager, UserMixin, login_user, logout_user, current_user
 from dotenv import load_dotenv, find_dotenv
 import os
@@ -21,6 +22,7 @@ app.secret_key = os.getenv("SECRET_KEY") #secret key is stored in .env file
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///medical.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db = SQLAlchemy(app)
+ckeditor = CKEditor(app)
 
 login_manager = LoginManager()
 login_manager.init_app(app)
@@ -44,8 +46,9 @@ class BlogPost(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     title = db.Column(db.String(80), nullable=False)
     content = db.Column(db.Text, nullable=False)
+    image_url = db.Column(db.String(250), nullable=False)
     date = db.Column(db.String(80), nullable=False)
-    # author = db.relationship("User", back_populates='posts')
+    # poster = db.relationship("User", back_populates='posts')
     poster_id = db.Column(db.Integer, db.ForeignKey("users.id"))
 # db.create_all()
 
@@ -168,6 +171,64 @@ def login():
 def logout():
     logout_user()
     return redirect(url_for('about'))
+
+
+@app.route('/blog', methods=['GET'])
+def show_blog():
+    all_posts = BlogPost.query.all()
+    return render_template('blog.html', posts=all_posts, current_user=current_user)
+
+
+@app.route('/post/<int:post_id>', methods=['GET', 'POST'])
+def show_post(post_id):
+    requested_post = BlogPost.query.get(post_id)
+    return render_template('post.html', current_user=current_user, post=requested_post)
+
+
+@app.route('/add_post', methods=['GET', 'POST'])
+@admin_only
+def add_post():
+    form = CreatePostForm()
+    if form.validate_on_submit():
+        new_post = BlogPost(
+            title=form.title.data,
+            content=form.body.data,
+            image_url=form.image_url.data,
+            date=date.today().strftime("%B %d, %Y"),
+            poster=current_user
+        )
+        db.session.add(new_post)
+        db.session.commit()
+        return redirect(url_for('show_blog'))
+    return render_template('add_post.html', form=form, current_user=current_user)
+
+
+@app.route('/edit/<int:post_id>', methods=['GET', 'POST'])
+@admin_only
+def edit_post(post_id):
+    post = BlogPost.query.get(post_id)
+    edit_form = CreatePostForm(
+        title=post.title,
+        content=post.content,
+        image_url=post.image_url,
+        poster=current_user
+    )
+    if edit_form.validate_on_submit():
+        post.title = edit_form.title.data
+        post.content = edit_form.body.data
+        post.image_url = edit_form.image_url.data
+        db.session.commit()
+        return redirect(url_for('show_post', post_id=post.id))
+    return render_template('add_post.html', form=edit_form, is_edit=True, current_user=current_user)
+
+
+@app.route('/delete/<int:post_id>')
+@admin_only
+def delete_post(post_id):
+    post_to_delete = BlogPost.query.get(post_id)
+    db.session.delete(post_to_delete)
+    db.session.commit()
+    return redirect(url_for('show_blog'))
 
 
 if __name__ == "__main__":
