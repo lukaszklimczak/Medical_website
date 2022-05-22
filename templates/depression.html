@@ -1,37 +1,38 @@
 {% extends 'base.html' %}
 
 {% block content %}
+<main>
+    <div class="middle-container">
+        <div class="header-container">
+            <h3>Czy depresja jest niebezpieczna?</h3>
+        </div>
+        <div class="text-content">
+            <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Morbi quis commodo odio aenean sed adipiscing diam. Vitae aliquet nec ullamcorper sit. Blandit libero volutpat sed cras ornare. Diam vulputate ut pharetra sit amet aliquam id diam maecenas. Commodo elit at imperdiet dui accumsan sit. Leo urna molestie at elementum eu facilisis sed odio morbi. At in tellus integer feugiat scelerisque varius morbi. In hendrerit gravida rutrum quisque non tellus orci. Gravida dictum fusce ut placerat orci nulla pellentesque dignissim. Pellentesque habitant morbi tristique senectus et netus et malesuada. Viverra aliquet eget sit amet. Eu nisl nunc mi ipsum faucibus vitae aliquet nec.</p>
+        </div>
+        <div class="header-container">
+            <h3>Jak rozpoznać depresję?</h3>
+        </div>
+    </div>
 
-<div class="middle-container">
-    <div class="header-container">
-        <h3>Czy depresja jest niebezpieczna?</h3>
+    <div class="wrapper">
+        <div class="wrapper-image">
+            <img src="{{url_for('static',filename ='img/depression.jpg')}}" alt="Depression" class="service-img" style="float: right;"/>
+        </div>
+        <div class="wrapper-text">
+            <p>Nunc congue nisi vitae suscipit tellus. Egestas sed tempus urna et pharetra pharetra massa massa ultricies. Nulla malesuada pellentesque elit eget gravida cum sociis natoque. Felis imperdiet proin fermentum leo vel orci porta. Rutrum quisque non tellus orci. Cum sociis natoque penatibus et magnis dis parturient. Faucibus nisl tincidunt eget nullam non nisi. Scelerisque purus semper eget duis at tellus. Ut sem nulla pharetra diam sit amet. Orci porta non pulvinar neque laoreet suspendisse interdum. </p>
+            <p>Nunc congue nisi vitae suscipit tellus. Egestas sed tempus urna et pharetra pharetra massa massa ultricies. Nulla malesuada pellentesque elit eget gravida cum sociis natoque. Felis imperdiet proin fermentum leo vel orci porta. Rutrum quisque non tellus orci. Cum sociis natoque penatibus et magnis dis parturient. Faucibus nisl tincidunt eget nullam non nisi. Scelerisque purus semper eget duis at tellus. Ut sem nulla pharetra diam sit amet. Orci porta non pulvinar neque laoreet suspendisse interdum. </p>
+        </div>
     </div>
-    <div class="text-content">
-        <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Morbi quis commodo odio aenean sed adipiscing diam. Vitae aliquet nec ullamcorper sit. Blandit libero volutpat sed cras ornare. Diam vulputate ut pharetra sit amet aliquam id diam maecenas. Commodo elit at imperdiet dui accumsan sit. Leo urna molestie at elementum eu facilisis sed odio morbi. At in tellus integer feugiat scelerisque varius morbi. In hendrerit gravida rutrum quisque non tellus orci. Gravida dictum fusce ut placerat orci nulla pellentesque dignissim. Pellentesque habitant morbi tristique senectus et netus et malesuada. Viverra aliquet eget sit amet. Eu nisl nunc mi ipsum faucibus vitae aliquet nec.</p>
-    </div>
-    <div class="header-container">
-        <h3>Jak rozpoznać depresję?</h3>
-    </div>
-</div>
 
-<div class="wrapper">
-    <div class="wrapper-image">
-        <img src="{{url_for('static',filename ='img/depression.jpg')}}" alt="Depression" class="service-img" style="float: right;"/>
+    <div class="middle-container" style="margin-top: 20px; margin-bottom: 200px;">
+        <div class="header-container">
+            <h3>Nie lekceważ objawów depresji. Pozwól sobie pomóc</h3>
+        </div>
+        <div class="text-content">
+            <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Duis ultricies lacus sed turpis tincidunt id aliquet risus.</p>
+        </div>
     </div>
-    <div class="wrapper-text">
-        <p>Nunc congue nisi vitae suscipit tellus. Egestas sed tempus urna et pharetra pharetra massa massa ultricies. Nulla malesuada pellentesque elit eget gravida cum sociis natoque. Felis imperdiet proin fermentum leo vel orci porta. Rutrum quisque non tellus orci. Cum sociis natoque penatibus et magnis dis parturient. Faucibus nisl tincidunt eget nullam non nisi. Scelerisque purus semper eget duis at tellus. Ut sem nulla pharetra diam sit amet. Orci porta non pulvinar neque laoreet suspendisse interdum. </p>
-        <p>Nunc congue nisi vitae suscipit tellus. Egestas sed tempus urna et pharetra pharetra massa massa ultricies. Nulla malesuada pellentesque elit eget gravida cum sociis natoque. Felis imperdiet proin fermentum leo vel orci porta. Rutrum quisque non tellus orci. Cum sociis natoque penatibus et magnis dis parturient. Faucibus nisl tincidunt eget nullam non nisi. Scelerisque purus semper eget duis at tellus. Ut sem nulla pharetra diam sit amet. Orci porta non pulvinar neque laoreet suspendisse interdum. </p>
-    </div>
-</div>
-
-<div class="middle-container" style="margin-top: 20px; margin-bottom: 200px;">
-    <div class="header-container">
-        <h3>Nie lekceważ objawów depresji. Pozwól sobie pomóc</h3>
-    </div>
-    <div class="text-content">
-        <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Duis ultricies lacus sed turpis tincidunt id aliquet risus.</p>
-    </div>
-</div>
+</main>
 {% endblock %}
 
 {% block footer %}

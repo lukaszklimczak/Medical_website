@@ -2,15 +2,24 @@
 {% import "bootstrap/wtf.html" as wtf %}
 
 {% block content %}
-<div class="team-container" style="margin-bottom: 250px;">
-    <div class="wrapper">
-        <div class="row">
-            <div class="col-lg-8 col-md-10 mx-auto">
-                {{ wtf.quick_form(form, novalidate=True, button_map={"submit": "primary"}) }}
+<main>
+    <div class="team-container">
+        <div class="wrapper">
+            <div class="row">
+                <div class="col-lg-8 col-md-10 mx-auto">
+                    {% with messages = get_flashed_messages() %}
+                        {% if messages %}
+                          {% for message in messages %}
+                           <p>{{ message }}</p>
+                          {% endfor %}
+                        {% endif %}
+                    {% endwith %}
+                    {{ wtf.quick_form(form, novalidate=True, button_map={"submit": "primary"}) }}
+                </div>
             </div>
         </div>
     </div>
-</div>
+</main>
 {% endblock %}
 
 {% block footer %}

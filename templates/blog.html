@@ -1,0 +1,49 @@
+{% extends "base.html" %}
+
+{% block content %}
+<main>
+    <div class="team-container">
+        <div class="wrapper">
+            {% if current_user.id == 1 %}
+            <a href="{{ url_for('add_post') }}"><button type="button" class="btn btn-primary btn-sm">Dodaj Post</button></a>
+            {% endif %}
+            <div class="row">
+                <div class="col-lg-4 col-md-12">
+                </div>
+                <div class="col-lg-8 col-md-12">
+                <h1 style="color: black;">Nasz Blog</h1>
+                </div>
+            </div>
+            {% if posts: %}
+                {% for post in posts: %}
+
+                <div class="row team-member-container">
+                    <div class="col-lg-4 col-md-12">
+                        <img src="{{ post.image_url }}" alt="Picture" width="217px" height="217px"/>
+                    </div>
+                    <div class="col-lg-8 col-md-12">
+                        <div class="wrapper-text">
+                        <a href="{{ url_for('show_post', post_id=post.id) }}">
+                            <h3>{{ post.title|safe }}</h3>
+                        </a>
+                        <h6>Dodano: {{ post.date }}</h6>
+                        <p>{{ post.content[3:200]+"..." |safe }}</p>
+                        <p class="source">Źródło: {{ post.image_url }}</p>
+                        </div>
+                    </div>
+                </div>
+
+            <hr>
+                {% endfor %}
+            {% else %}
+                <p style="margin-top: 100px;">Brak postów na Blogu</p>
+            {% endif %}
+        </div>
+    </div>
+
+</main>
+{% endblock %}
+
+{% block footer %}
+    {% include 'footer.html' %}
+{% endblock %}
