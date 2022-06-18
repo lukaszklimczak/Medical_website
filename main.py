@@ -7,7 +7,7 @@ import os
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy.orm import relationship
 from datetime import date
-from forms import RegisterForm, LoginForm, CreatePostForm
+from forms import RegisterForm, LoginForm, CreatePostForm, BookVisitForm
 from functools import wraps
 from werkzeug.security import generate_password_hash, check_password_hash
 
@@ -15,7 +15,7 @@ from werkzeug.security import generate_password_hash, check_password_hash
 app = Flask(__name__)
 Bootstrap(app)
 
-# load_dotenv(find_dotenv())
+load_dotenv(find_dotenv())
 
 app.secret_key = os.getenv("SECRET_KEY") #secret key is stored in .env file
 
@@ -37,8 +37,8 @@ class User(UserMixin, db.Model):
     password = db.Column(db.String(80), unique=False, nullable=False)
     mobile = db.Column(db.Integer, unique=True, nullable=False)
     posts = db.relationship("BlogPost", backref="poster")
-    # visit = db.relationship("Visit", backref='patient', uselist=False) #one to one relationship
-# db.create_all()
+    visit = db.relationship("Visit", backref="patient", uselist=False) #one to one relationship
+db.create_all()
 
 
 class BlogPost(db.Model):
@@ -48,17 +48,39 @@ class BlogPost(db.Model):
     content = db.Column(db.Text, nullable=False)
     image_url = db.Column(db.String(250), nullable=False)
     date = db.Column(db.String(80), nullable=False)
-    # poster = db.relationship("User", back_populates='posts')
     poster_id = db.Column(db.Integer, db.ForeignKey("users.id"))
-# db.create_all()
+db.create_all()
 
 
-# class Visit(db.Model):
-#     __tablename__ = "visits"
-#     id = db.Column(db.Integer, primary_key=True)
-#     date = db.Column(db.DateTime, nullable=False)
-#     patient = db.Column(db.Integer, db.ForeignKey('users.id'))
-#     db.create_all()
+class Visit(db.Model):
+    __tablename__ = "visits"
+    id = db.Column(db.Integer, primary_key=True)
+    date = db.Column(db.Date, nullable=False)
+    starts_at = db.Column(db.Time, nullable=False)
+    # ends_at = db.Column(db.Time, nullable=False)
+    confirmed = db.Column(db.Boolean, default=False, nullable=False)
+    patient_id = db.Column(db.Integer, db.ForeignKey('users.id'))
+db.create_all()
+
+
+def admin_only(f):
+    @wraps(f)
+    def decorated_function(*args, **kwargs):
+        if current_user.id != 1:
+            return abort(403)
+        return f(*args, **kwargs)
+    return decorated_function
+
+
+def login_required(f):
+    @wraps(f)
+    def decorated_function(*args, **kwargs):
+        if current_user.is_authenticated:
+            return f(*args, **kwargs)
+        else:
+            flash("Aby zarezerwować termin musisz być zalogowany")
+            return redirect(url_for('login'))
+    return decorated_function
 
 
 @app.route("/")
@@ -104,15 +126,6 @@ def team():
 @app.route('/contact')
 def contact():
     return render_template("contact.html")
-
-
-def admin_only(f):
-    @wraps(f)
-    def decorated_function(*args, **kwargs):
-        if current_user.id != 1:
-            return abort(403)
-        return f(*args, **kwargs)
-    return decorated_function
 
 
 @login_manager.user_loader
@@ -163,6 +176,7 @@ def login():
             return redirect(url_for('login'))
         else:
             login_user(user)
+            # session['user'] = user
             return redirect(url_for('about'))
     return render_template('login.html', form=form, current_user=current_user)
 
@@ -211,7 +225,7 @@ def edit_post(post_id):
         title=post.title,
         content=post.content,
         image_url=post.image_url,
-        poster=current_user
+        poster_id=current_user.id
     )
     if edit_form.validate_on_submit():
         post.title = edit_form.title.data
@@ -229,6 +243,54 @@ def delete_post(post_id):
     db.session.delete(post_to_delete)
     db.session.commit()
     return redirect(url_for('show_blog'))
+
+
+@app.route('/book/', methods=['GET', 'POST'])
+@login_required
+def book_a_visit():
+
+    if current_user.id == 1:
+        form = BookVisitForm()
+        if form.validate_on_submit():
+            form = BookVisitForm()
+            user = User.query.filter_by(email=form.email.data).first()
+            new_visit = Visit(
+                date=form.date.data,
+                starts_at=form.starts_at.data,
+                # ends_at=form.ends_at.data,
+                confirmed=True,
+                patient_id=user.id
+            )
+            db.session.add(new_visit)
+            db.session.commit()
+            flash("Zarezerwowano wizytę.")
+            return redirect(url_for('book_a_visit'))
+    else:
+        form = BookVisitForm(
+            email=current_user.email,
+        )
+        if form.validate_on_submit():
+            new_visit = Visit(
+                date=form.date.data,
+                starts_at=form.starts_at.data,
+                # ends_at=form.ends_at.data,
+                patient_id=current_user.id
+            )
+            db.session.add(new_visit)
+            db.session.commit()
+            flash("Zarezerwowano wizytę.")
+            return redirect(url_for('book_a_visit'))
+    return render_template('book.html', form=form, current_user=current_user)
+
+
+@app.route('/confirm/<int:visit_id>')
+@admin_only
+def confirm_a_visit(visit_id):
+    pass
+
+
+def show_visits():
+    pass
 
 
 if __name__ == "__main__":
