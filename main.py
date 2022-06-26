@@ -1,4 +1,4 @@
-from flask import Flask, render_template, url_for, redirect, flash, abort, session
+from flask import Flask, render_template, url_for, redirect, flash, abort, session, request
 from flask_bootstrap import Bootstrap
 from flask_ckeditor import CKEditor
 from flask_login import LoginManager, UserMixin, login_user, logout_user, current_user
@@ -6,10 +6,11 @@ from dotenv import load_dotenv, find_dotenv
 import os
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy.orm import relationship
-from datetime import date
+from datetime import date, datetime, timedelta
 from forms import RegisterForm, LoginForm, CreatePostForm, BookVisitForm
 from functools import wraps
 from werkzeug.security import generate_password_hash, check_password_hash
+from sqlalchemy import func
 
 
 app = Flask(__name__)
@@ -27,6 +28,8 @@ ckeditor = CKEditor(app)
 login_manager = LoginManager()
 login_manager.init_app(app)
 
+now = date.today()
+
 
 class User(UserMixin, db.Model):
     __tablename__ = "users"
@@ -38,7 +41,7 @@ class User(UserMixin, db.Model):
     mobile = db.Column(db.Integer, unique=True, nullable=False)
     posts = db.relationship("BlogPost", backref="poster")
     visit = db.relationship("Visit", backref="patient", uselist=False) #one to one relationship
-db.create_all()
+# db.create_all()
 
 
 class BlogPost(db.Model):
@@ -49,7 +52,7 @@ class BlogPost(db.Model):
     image_url = db.Column(db.String(250), nullable=False)
     date = db.Column(db.String(80), nullable=False)
     poster_id = db.Column(db.Integer, db.ForeignKey("users.id"))
-db.create_all()
+# db.create_all()
 
 
 class Visit(db.Model):
@@ -60,7 +63,7 @@ class Visit(db.Model):
     # ends_at = db.Column(db.Time, nullable=False)
     confirmed = db.Column(db.Boolean, default=False, nullable=False)
     patient_id = db.Column(db.Integer, db.ForeignKey('users.id'))
-db.create_all()
+# db.create_all()
 
 
 def admin_only(f):
@@ -249,11 +252,29 @@ def delete_post(post_id):
 @login_required
 def book_a_visit():
 
+    all_hours = ['10:00', '11:00', '12:00', '13:00', '14:00', '15:00', '16:00',
+                 '17:00', '18:00']
+
     if current_user.id == 1:
         form = BookVisitForm()
         if form.validate_on_submit():
-            form = BookVisitForm()
             user = User.query.filter_by(email=form.email.data).first()
+            selected_date = form.date.data
+            not_available_hours = db.session.query(func.strftime('%H:00', Visit.starts_at)).filter(
+                Visit.date == selected_date).all()
+            available_hours = all_hours
+            for i in range(len(not_available_hours)):
+                if not_available_hours[i][0] in available_hours:
+                    available_hours.remove(not_available_hours[i][0])
+
+            if Visit.query.filter_by(date=form.date.data).first() and Visit.query.filter_by(
+                    starts_at=form.starts_at.data).first():
+                available_hours_to_string = ", ".join(available_hours)
+                message = f"Dostępne godziny w tym dniu to {available_hours_to_string}"
+                flash("Ten termin wizyty jest już zarezerwowany. Wybierz inny termin wizyty.")
+                flash(message)
+                return redirect(url_for('book_a_visit'))
+
             new_visit = Visit(
                 date=form.date.data,
                 starts_at=form.starts_at.data,
@@ -270,6 +291,27 @@ def book_a_visit():
             email=current_user.email,
         )
         if form.validate_on_submit():
+            if Visit.query.filter_by(patient_id=current_user.id).first():
+                flash("Użytkownik o takim adresie e-mail już zarezerwował wizytę."
+                      " Można mieć tylko jedną zarezerwowaną wizytę!")
+                return redirect(url_for('book_a_visit'))
+
+            selected_date = form.date.data
+            not_available_hours = db.session.query(func.strftime('%H:00', Visit.starts_at)).filter(
+                Visit.date == selected_date).all()
+            available_hours = all_hours
+            for i in range(len(not_available_hours)):
+                if not_available_hours[i][0] in available_hours:
+                    available_hours.remove(not_available_hours[i][0])
+
+            if Visit.query.filter_by(date=form.date.data).first() and Visit.query.filter_by(
+                    starts_at=form.starts_at.data).first():
+                available_hours_to_string = ", ".join(available_hours)
+                message = f"Dostępne godziny w tym dniu to {available_hours_to_string}"
+                flash("Ten termin wizyty jest już zarezerwowany. Wybierz inny termin wizyty.")
+                flash(message)
+                return redirect(url_for('book_a_visit'))
+
             new_visit = Visit(
                 date=form.date.data,
                 starts_at=form.starts_at.data,
@@ -289,8 +331,25 @@ def confirm_a_visit(visit_id):
     pass
 
 
+@app.route('/visits/', methods=['GET', 'POST'])
+@login_required
 def show_visits():
-    pass
+    global now
+    following_dates_list = [now + timedelta(days=x) for x in range(7)]
+    dates_list = following_dates_list
+    if request.method == "POST":
+        if request.form.get("previous"):
+            previous_dates_list = [dates_list[0] - timedelta(days=x) for x in range(7)]
+            dates_list = previous_dates_list
+            now = dates_list[6]
+            return redirect(url_for('show_visits'))
+        elif request.form.get("forward"):
+            forward_dates_list = [dates_list[6] + timedelta(days=x) for x in range(7)]
+            dates_list = forward_dates_list
+            now = dates_list[6]
+            return redirect(url_for('show_visits'))
+
+    return render_template('visits.html', days=dates_list)
 
 
 if __name__ == "__main__":
