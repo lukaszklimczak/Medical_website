@@ -1,0 +1,82 @@
+{% extends 'base.html' %}
+{% import "bootstrap/wtf.html" as wtf %}
+
+{% block content %}
+<main>
+    <div class="team-container">
+        <div class="wrapper">
+            <div class="row">
+                <div class="col-lg-4 col-md-12">
+                </div>
+                    <div class="col-lg-8 col-md-12">
+                        <h1 style="color: black;">Harmonogram wizyt</h1>
+                    </div>
+            </div>
+
+            <div>
+                <form method="post">
+                    <button type="submit" class="btn btn-info left-button" name="previous" value="submit"> < </button>
+                    <button type="submit" class="btn btn-info right-button" name="forward" value="submit"> > </button>
+                </form>
+            </div>
+            <br>
+            <div>
+                <table>
+                    <tr>
+                        <th>Godzina</th>
+                        {% for date in days: %}
+                        <th>{{date}} </th>
+                        {% endfor %}
+
+                    </tr>
+                    <tr>
+                        <td>10.00</td>
+                        <td>Wolny termin</td>
+                    </tr>
+                    <tr>
+                        <td>11.00</td>
+                        <td>Wolny termin</td>
+                    </tr>
+                    <tr>
+                        <td>12.00</td>
+                        <td>Wolny termin</td>
+                    </tr>
+                    <tr>
+                        <td>13.00</td>
+                        <td>Wolny termin</td>
+                    </tr>
+                    <tr>
+                        <td>14.00</td>
+                        <td>Wolny termin</td>
+                    </tr>
+                    <tr>
+                        <td>15.00</td>
+                        <td>Wolny termin</td>
+                    </tr>
+                    <tr>
+                        <td>16.00</td>
+                        <td>Wolny termin</td>
+                    </tr>
+                    <tr>
+                        <td>17.00</td>
+                        <td>Wolny termin</td>
+                    </tr>
+                    <tr>
+                        <td>18.00</td>
+                        <td>Wolny termin</td>
+                    </tr>
+
+                </table>
+            </div>
+
+
+        </div>
+    </div>
+
+
+</main>
+{% endblock %}
+
+{% block footer %}
+    {% include 'footer.html' %}
+{% endblock %}

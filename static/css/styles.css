@@ -203,3 +203,25 @@ main {
 .footer-bottom {
     text-align: center;
 }
+
+.left-button {
+    position: absolute:
+    left: 0;
+}
+
+.right-button {
+    position: absolute;
+    right: 0;
+}
+
+/* table - Calendar */
+th {
+    text-align: center;
+    padding: 0 10px;
+}
+
+td {
+    text-align: center;
+    height: 3rem;
+    width: 7rem;
+}
