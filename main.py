@@ -325,18 +325,33 @@ def book_a_visit():
     return render_template('book.html', form=form, current_user=current_user)
 
 
-@app.route('/confirm/<int:visit_id>')
-@admin_only
-def confirm_a_visit(visit_id):
-    pass
-
-
 @app.route('/visits/', methods=['GET', 'POST'])
 @login_required
 def show_visits():
     global now
     following_dates_list = [now + timedelta(days=x) for x in range(7)]
     dates_list = following_dates_list
+
+    visits_at_10 = []
+    visits_at_11 = []
+    visits_at_12 = []
+    visits_at_13 = []
+    visits_at_14 = []
+    visits_at_15 = []
+    visits_at_16 = []
+    visits_at_17 = []
+    visits_at_18 = []
+    for elem in dates_list:
+        visits_at_10.append(Visit.query.filter(Visit.date == elem, Visit.starts_at == '10:00:00.000000').first())
+        visits_at_11.append(Visit.query.filter(Visit.date == elem, Visit.starts_at == '11:00:00.000000').first())
+        visits_at_12.append(Visit.query.filter(Visit.date == elem, Visit.starts_at == '12:00:00.000000').first())
+        visits_at_13.append(Visit.query.filter(Visit.date == elem, Visit.starts_at == '13:00:00.000000').first())
+        visits_at_14.append(Visit.query.filter(Visit.date == elem, Visit.starts_at == '14:00:00.000000').first())
+        visits_at_15.append(Visit.query.filter(Visit.date == elem, Visit.starts_at == '15:00:00.000000').first())
+        visits_at_16.append(Visit.query.filter(Visit.date == elem, Visit.starts_at == '16:00:00.000000').first())
+        visits_at_17.append(Visit.query.filter(Visit.date == elem, Visit.starts_at == '17:00:00.000000').first())
+        visits_at_18.append(Visit.query.filter(Visit.date == elem, Visit.starts_at == '18:00:00.000000').first())
+
     if request.method == "POST":
         if request.form.get("previous"):
             previous_dates_list = [dates_list[0] - timedelta(days=x) for x in range(7)]
@@ -344,12 +359,19 @@ def show_visits():
             now = dates_list[6]
             return redirect(url_for('show_visits'))
         elif request.form.get("forward"):
-            forward_dates_list = [dates_list[6] + timedelta(days=x) for x in range(7)]
+            forward_dates_list = [dates_list[0] + timedelta(days=x) for x in range(7)]
             dates_list = forward_dates_list
             now = dates_list[6]
             return redirect(url_for('show_visits'))
 
-    return render_template('visits.html', days=dates_list)
+    return render_template('visits.html', days=dates_list, visits_10=visits_at_10, visits_11=visits_at_11,
+                           visits_12=visits_at_12, visits_13=visits_at_13, visits_14=visits_at_14,
+                           visits_15=visits_at_15, visits_16=visits_at_16, visits_17=visits_at_17,
+                           visits_18=visits_at_18)
+
+
+def delete_a_visit():
+    pass
 
 
 if __name__ == "__main__":
