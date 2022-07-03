@@ -275,6 +275,18 @@ def book_a_visit():
                 flash(message)
                 return redirect(url_for('book_a_visit'))
 
+            if selected_date <= date.today():
+                flash("Wizytę można zarezerwować jedynie w dni nadchodzące.")
+                return redirect(url_for('book_a_visit'))
+
+            if selected_date.strftime('%A') == "Saturday" or selected_date.strftime('%A') == "Sunday":
+                flash("Poradnia jest czynna od poniedziałku do piątku. Proszę zarezerwować termin w dni pracy Poradni.")
+                return redirect(url_for('book_a_visit'))
+
+            if form.starts_at.data < datetime.strptime(available_hours[0], '%H:%M').time() or form.starts_at.data > datetime.strptime(available_hours[8], '%H:%M').time():
+                flash("Wizytę można zarezerwować od godziny 10:00 do godziny 18:00.")
+                return redirect(url_for('book_a_visit'))
+
             new_visit = Visit(
                 date=form.date.data,
                 starts_at=form.starts_at.data,
@@ -285,18 +297,20 @@ def book_a_visit():
             db.session.add(new_visit)
             db.session.commit()
             flash("Zarezerwowano wizytę.")
-            return redirect(url_for('book_a_visit'))
+            return redirect(url_for('show_visits'))
     else:
         form = BookVisitForm(
             email=current_user.email,
         )
         if form.validate_on_submit():
-            if Visit.query.filter_by(patient_id=current_user.id).first():
+
+            selected_date = form.date.data
+            if Visit.query.filter_by(patient_id=current_user.id).first() and \
+                    db.session.query(Visit).filter(Visit.date >= date.today(), Visit.patient_id == current_user.id).first():
                 flash("Użytkownik o takim adresie e-mail już zarezerwował wizytę."
                       " Można mieć tylko jedną zarezerwowaną wizytę!")
                 return redirect(url_for('book_a_visit'))
 
-            selected_date = form.date.data
             not_available_hours = db.session.query(func.strftime('%H:00', Visit.starts_at)).filter(
                 Visit.date == selected_date).all()
             available_hours = all_hours
@@ -312,6 +326,18 @@ def book_a_visit():
                 flash(message)
                 return redirect(url_for('book_a_visit'))
 
+            if selected_date <= date.today():
+                flash("Wizytę można zarezerwować jedynie w dni nadchodzące.")
+                return redirect(url_for('book_a_visit'))
+
+            if selected_date.strftime('%A') == "Saturday" or selected_date.strftime('%A') == "Sunday":
+                flash("Poradnia jest czynna od poniedziałku do piątku. Proszę zarezerwować termin w dni pracy Poradni.")
+                return redirect(url_for('book_a_visit'))
+
+            if form.starts_at.data < datetime.strptime(available_hours[0], '%H:%M').time() or form.starts_at.data > datetime.strptime(available_hours[8], '%H:%M').time():
+                flash("Wizytę można zarezerwować od godziny 10:00 do godziny 18:00.")
+                return redirect(url_for('book_a_visit'))
+
             new_visit = Visit(
                 date=form.date.data,
                 starts_at=form.starts_at.data,
@@ -321,7 +347,7 @@ def book_a_visit():
             db.session.add(new_visit)
             db.session.commit()
             flash("Zarezerwowano wizytę.")
-            return redirect(url_for('book_a_visit'))
+            return redirect(url_for('show_visits'))
     return render_template('book.html', form=form, current_user=current_user)
 
 
