@@ -31,6 +31,6 @@ class CreatePostForm(FlaskForm):
 class BookVisitForm(FlaskForm):
     email = StringField("Email", validators=[DataRequired()])
     date = DateField("Data wizyty", format='%Y-%m-%d', validators=[DataRequired()])
-    starts_at = TimeField("Godzina rozpoczęcia wizyty", format='%H:%M', validators=[DataRequired()])
+    starts_at = TimeField("Godzina rozpoczęcia wizyty", format='%H:00',  validators=[DataRequired()])
     # ends_at = DateTimeField("Godzina zakończenia wizyty", format='%H:%M:%S')
     submit = SubmitField("Dodaj wizytę")
