@@ -12,13 +12,12 @@ from functools import wraps
 from werkzeug.security import generate_password_hash, check_password_hash
 from sqlalchemy import func
 
-
 app = Flask(__name__)
 Bootstrap(app)
 
 load_dotenv(find_dotenv())
 
-app.secret_key = os.getenv("SECRET_KEY") #secret key is stored in .env file
+app.secret_key = os.getenv("SECRET_KEY")  # secret key is stored in .env file
 
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///medical.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
@@ -40,7 +39,9 @@ class User(UserMixin, db.Model):
     password = db.Column(db.String(80), unique=False, nullable=False)
     mobile = db.Column(db.Integer, unique=True, nullable=False)
     posts = db.relationship("BlogPost", backref="poster")
-    visit = db.relationship("Visit", backref="patient", uselist=False) #one to one relationship
+    visit = db.relationship("Visit", backref="patient", uselist=False)  # one to one relationship
+
+
 # db.create_all()
 
 
@@ -52,6 +53,8 @@ class BlogPost(db.Model):
     image_url = db.Column(db.String(250), nullable=False)
     date = db.Column(db.String(80), nullable=False)
     poster_id = db.Column(db.Integer, db.ForeignKey("users.id"))
+
+
 # db.create_all()
 
 
@@ -63,6 +66,8 @@ class Visit(db.Model):
     # ends_at = db.Column(db.Time, nullable=False)
     confirmed = db.Column(db.Boolean, default=False, nullable=False)
     patient_id = db.Column(db.Integer, db.ForeignKey('users.id'))
+
+
 # db.create_all()
 
 
@@ -72,6 +77,7 @@ def admin_only(f):
         if current_user.id != 1:
             return abort(403)
         return f(*args, **kwargs)
+
     return decorated_function
 
 
@@ -83,6 +89,7 @@ def login_required(f):
         else:
             flash("Aby zarezerwować termin musisz być zalogowany")
             return redirect(url_for('login'))
+
     return decorated_function
 
 
@@ -251,7 +258,6 @@ def delete_post(post_id):
 @app.route('/book/', methods=['GET', 'POST'])
 @login_required
 def book_a_visit():
-
     all_hours = ['10:00', '11:00', '12:00', '13:00', '14:00', '15:00', '16:00',
                  '17:00', '18:00']
 
@@ -267,8 +273,8 @@ def book_a_visit():
                 if not_available_hours[i][0] in available_hours:
                     available_hours.remove(not_available_hours[i][0])
 
-            if Visit.query.filter_by(date=form.date.data).first() and Visit.query.filter_by(
-                    starts_at=form.starts_at.data).first():
+            if db.session.query(Visit).filter(Visit.date == form.date.data,
+                                              Visit.starts_at == form.starts_at.data).first():
                 available_hours_to_string = ", ".join(available_hours)
                 message = f"Dostępne godziny w tym dniu to {available_hours_to_string}"
                 flash("Ten termin wizyty jest już zarezerwowany. Wybierz inny termin wizyty.")
@@ -283,7 +289,9 @@ def book_a_visit():
                 flash("Poradnia jest czynna od poniedziałku do piątku. Proszę zarezerwować termin w dni pracy Poradni.")
                 return redirect(url_for('book_a_visit'))
 
-            if form.starts_at.data < datetime.strptime(available_hours[0], '%H:%M').time() or form.starts_at.data > datetime.strptime(available_hours[8], '%H:%M').time():
+            if form.starts_at.data < datetime.strptime(available_hours[0],
+                                                       '%H:%M').time() or form.starts_at.data > datetime.strptime(
+                    available_hours[len(available_hours) - 1], '%H:%M').time():
                 flash("Wizytę można zarezerwować od godziny 10:00 do godziny 18:00.")
                 return redirect(url_for('book_a_visit'))
 
@@ -294,6 +302,7 @@ def book_a_visit():
                 confirmed=True,
                 patient_id=user.id
             )
+
             db.session.add(new_visit)
             db.session.commit()
             flash("Zarezerwowano wizytę.")
@@ -306,7 +315,8 @@ def book_a_visit():
 
             selected_date = form.date.data
             if Visit.query.filter_by(patient_id=current_user.id).first() and \
-                    db.session.query(Visit).filter(Visit.date >= date.today(), Visit.patient_id == current_user.id).first():
+                    db.session.query(Visit).filter(Visit.date >= date.today(),
+                                                   Visit.patient_id == current_user.id).first():
                 flash("Użytkownik o takim adresie e-mail już zarezerwował wizytę."
                       " Można mieć tylko jedną zarezerwowaną wizytę!")
                 return redirect(url_for('book_a_visit'))
@@ -318,8 +328,8 @@ def book_a_visit():
                 if not_available_hours[i][0] in available_hours:
                     available_hours.remove(not_available_hours[i][0])
 
-            if Visit.query.filter_by(date=form.date.data).first() and Visit.query.filter_by(
-                    starts_at=form.starts_at.data).first():
+            if db.session.query(Visit).filter(Visit.date == form.date.data,
+                                              Visit.starts_at == form.starts_at.data).first():
                 available_hours_to_string = ", ".join(available_hours)
                 message = f"Dostępne godziny w tym dniu to {available_hours_to_string}"
                 flash("Ten termin wizyty jest już zarezerwowany. Wybierz inny termin wizyty.")
@@ -334,7 +344,9 @@ def book_a_visit():
                 flash("Poradnia jest czynna od poniedziałku do piątku. Proszę zarezerwować termin w dni pracy Poradni.")
                 return redirect(url_for('book_a_visit'))
 
-            if form.starts_at.data < datetime.strptime(available_hours[0], '%H:%M').time() or form.starts_at.data > datetime.strptime(available_hours[8], '%H:%M').time():
+            if form.starts_at.data < datetime.strptime(available_hours[0],
+                                                       '%H:%M').time() or form.starts_at.data > datetime.strptime(
+                    available_hours[len(available_hours) - 1], '%H:%M').time():
                 flash("Wizytę można zarezerwować od godziny 10:00 do godziny 18:00.")
                 return redirect(url_for('book_a_visit'))
 
@@ -378,6 +390,11 @@ def show_visits():
         visits_at_17.append(Visit.query.filter(Visit.date == elem, Visit.starts_at == '17:00:00.000000').first())
         visits_at_18.append(Visit.query.filter(Visit.date == elem, Visit.starts_at == '18:00:00.000000').first())
 
+    is_booked = None
+    user_visits = Visit.query.filter(Visit.date >= date.today(), Visit.patient_id == current_user.id).all()
+    if user_visits:
+        is_booked = True
+
     if request.method == "POST":
         if request.form.get("previous"):
             previous_dates_list = [dates_list[0] - timedelta(days=x) for x in range(7)]
@@ -390,14 +407,68 @@ def show_visits():
             now = dates_list[6]
             return redirect(url_for('show_visits'))
 
-    return render_template('visits.html', days=dates_list, visits_10=visits_at_10, visits_11=visits_at_11,
+    return render_template('visits.html', days=dates_list, visits=user_visits, visits_10=visits_at_10,
+                           visits_11=visits_at_11,
                            visits_12=visits_at_12, visits_13=visits_at_13, visits_14=visits_at_14,
                            visits_15=visits_at_15, visits_16=visits_at_16, visits_17=visits_at_17,
-                           visits_18=visits_at_18)
+                           visits_18=visits_at_18, booked=is_booked)
 
 
+@app.route('/delete', methods=['GET', 'POST'])
+@login_required
 def delete_a_visit():
-    pass
+    if current_user.id == 1:
+        delete_form = BookVisitForm()
+        if delete_form.validate_on_submit():
+            date_of_visit_to_delete = delete_form.date.data
+            starts_at_of_visit_to_delete = delete_form.starts_at.data
+            visit_to_delete = db.session.query(Visit).filter(Visit.date == date_of_visit_to_delete,
+                                                             Visit.starts_at == starts_at_of_visit_to_delete).first()
+
+            if not visit_to_delete:
+                flash("Nie ma takiej wizyty.")
+                return redirect(url_for('show_visits'))
+
+            db.session.delete(visit_to_delete)
+            db.session.commit()
+            flash("Usunięto wizytę.")
+            return redirect(url_for('show_visits'))
+
+    if current_user.id != 1:
+        delete_form = BookVisitForm()
+        user_visits = db.session.query(Visit).filter(Visit.date >= date.today(),
+                                                     Visit.patient_id == current_user.id).all()
+        if len(user_visits) == 1:
+            visit_to_delete = db.session.query(Visit).filter(Visit.date >= date.today(),
+                                                             Visit.patient_id == current_user.id).first()
+            delete_form = BookVisitForm(
+                email=current_user.email,
+                date=visit_to_delete.date,
+                starts_at=visit_to_delete.starts_at,
+            )
+        else:
+            delete_form = BookVisitForm(
+                email=current_user.email,
+                date=delete_form.date.data,
+                starts_at=delete_form.starts_at.data,
+            )
+            date_of_visit_to_delete = delete_form.date.data
+            starts_at_of_visit_to_delete = delete_form.starts_at.data
+            visit_to_delete = db.session.query(Visit).filter(Visit.date == date_of_visit_to_delete,
+                                                             Visit.starts_at == starts_at_of_visit_to_delete).first()
+
+        if delete_form.validate_on_submit():
+
+            if not visit_to_delete:
+                flash("Nie ma takiej wizyty.")
+                return redirect(url_for('show_visits'))
+
+            db.session.delete(visit_to_delete)
+            db.session.commit()
+            flash("Usunięto wizytę.")
+            return redirect(url_for('show_visits'))
+
+    return render_template('delete-visit.html', form=delete_form, current_user=current_user)
 
 
 if __name__ == "__main__":
