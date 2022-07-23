@@ -229,3 +229,13 @@ td {
 .field {
     font-size: 0.7rem;
 }
+
+.free {
+    color: #0fff97;
+    font-weight: bold;
+}
+
+.busy {
+    color: #f47564;
+    font-weight: bold;
+}

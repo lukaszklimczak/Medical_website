@@ -291,7 +291,7 @@ def book_a_visit():
 
             if form.starts_at.data < datetime.strptime(available_hours[0],
                                                        '%H:%M').time() or form.starts_at.data > datetime.strptime(
-                    available_hours[len(available_hours) - 1], '%H:%M').time():
+                available_hours[len(available_hours) - 1], '%H:%M').time():
                 flash("Wizytę można zarezerwować od godziny 10:00 do godziny 18:00.")
                 return redirect(url_for('book_a_visit'))
 
@@ -346,7 +346,7 @@ def book_a_visit():
 
             if form.starts_at.data < datetime.strptime(available_hours[0],
                                                        '%H:%M').time() or form.starts_at.data > datetime.strptime(
-                    available_hours[len(available_hours) - 1], '%H:%M').time():
+                available_hours[len(available_hours) - 1], '%H:%M').time():
                 flash("Wizytę można zarezerwować od godziny 10:00 do godziny 18:00.")
                 return redirect(url_for('book_a_visit'))
 
@@ -469,6 +469,62 @@ def delete_a_visit():
             return redirect(url_for('show_visits'))
 
     return render_template('delete-visit.html', form=delete_form, current_user=current_user)
+
+
+@app.route('/block', methods=['GET', 'POST'])
+@admin_only
+def block_term():
+    all_hours = ['10:00', '11:00', '12:00', '13:00', '14:00', '15:00', '16:00',
+                 '17:00', '18:00']
+    form = BookVisitForm(
+        email=current_user.email,
+    )
+    if form.validate_on_submit():
+        selected_date = form.date.data
+        not_available_hours = db.session.query(func.strftime('%H:00', Visit.starts_at)).filter(
+            Visit.date == selected_date).all()
+        available_hours = all_hours
+        for i in range(len(not_available_hours)):
+            if not_available_hours[i][0] in available_hours:
+                available_hours.remove(not_available_hours[i][0])
+
+        if db.session.query(Visit).filter(Visit.date == form.date.data,
+                                          Visit.starts_at == form.starts_at.data).first():
+            available_hours_to_string = ", ".join(available_hours)
+            message = f"Wolne godziny do zablokowania w tym dniu to {available_hours_to_string}"
+            flash("Ten termin wizyty jest już zarezerwowany. Aby zablokować termin najpierw usuń wizytę.")
+            flash(message)
+            return redirect(url_for('block_term'))
+
+        if selected_date <= date.today():
+            flash("Termin można zablokować jedynie w dni nadchodzące.")
+            return redirect(url_for('block_term'))
+
+        if selected_date.strftime('%A') == "Saturday" or selected_date.strftime('%A') == "Sunday":
+            flash(
+                "Poradnia jest czynna od poniedziałku do piątku. Zablokować termin można jedynie w dni pracy Poradni.")
+            return redirect(url_for('block_term'))
+
+        if form.starts_at.data < datetime.strptime(available_hours[0],
+                                                   '%H:%M').time() or form.starts_at.data > datetime.strptime(
+            available_hours[len(available_hours) - 1], '%H:%M').time():
+            flash("Termin można zablokować w godziny pracy Poradni, od godziny 10:00 do godziny 18:00.")
+            return redirect(url_for('block_term'))
+
+        blocked_term = Visit(
+            date=form.date.data,
+            starts_at=form.starts_at.data,
+            # ends_at=form.ends_at.data,
+            confirmed=True,
+            patient_id=current_user.id
+        )
+
+        db.session.add(blocked_term)
+        db.session.commit()
+        flash("Zablokowano termin.")
+        return redirect(url_for('show_visits'))
+
+    return render_template('block-term.html', form=form, current_user=current_user)
 
 
 if __name__ == "__main__":
