@@ -54,14 +54,21 @@
                     <tr>
 
                         <th>Godzina</th>
-                        {% for date in days: %}
+                        {% for date in days_of_week: %}
+                        {% if date: %}
                         <th>{{date}}</th>
+                        {% else %}
+                        <th>Nieczynne</th>
+                        {% endif %}
                         {% endfor %}
 
                     </tr>
                     <tr>
                         <td>10.00</td>
                         {% for visit in visits_10: %}
+                        {% if visit == 0: %}
+                        <td class="field closed">Nieczynne</td>
+                        {% else %}
                         {% if visit: %}
                         {% if current_user.id == 1 %}
                         {% if visit.patient.id == 1: %}
@@ -78,12 +85,16 @@
                         {% endif %}
                         {% else %}
                         <td class="field free">Wolny</td>
+                        {% endif %}
                         {% endif %}
                         {% endfor %}
                     </tr>
                     <tr>
                         <td>11.00</td>
                         {% for visit in visits_11: %}
+                        {% if visit == 0: %}
+                        <td class="field closed">Nieczynne</td>
+                        {% else %}
                         {% if visit: %}
                         {% if current_user.id == 1 %}
                         {% if visit.patient.id == 1: %}
@@ -100,12 +111,16 @@
                         {% endif %}
                         {% else %}
                         <td class="field free">Wolny</td>
+                        {% endif %}
                         {% endif %}
                         {% endfor %}
                     </tr>
                     <tr>
                         <td>12.00</td>
                         {% for visit in visits_12: %}
+                        {% if visit == 0: %}
+                        <td class="field closed">Nieczynne</td>
+                        {% else %}
                         {% if visit: %}
                         {% if current_user.id == 1 %}
                         {% if visit.patient.id == 1: %}
@@ -122,12 +137,16 @@
                         {% endif %}
                         {% else %}
                         <td class="field free">Wolny</td>
+                        {% endif %}
                         {% endif %}
                         {% endfor %}
                     </tr>
                     <tr>
                         <td>13.00</td>
                         {% for visit in visits_13: %}
+                        {% if visit == 0: %}
+                        <td class="field closed">Nieczynne</td>
+                        {% else %}
                         {% if visit: %}
                         {% if current_user.id == 1 %}
                         {% if visit.patient.id == 1: %}
@@ -145,11 +164,15 @@
                         {% else %}
                         <td class="field free">Wolny</td>
                         {% endif %}
+                        {% endif %}
                         {% endfor %}
                     </tr>
                     <tr>
                         <td>14.00</td>
                         {% for visit in visits_14: %}
+                        {% if visit == 0: %}
+                        <td class="field closed">Nieczynne</td>
+                        {% else %}
                         {% if visit: %}
                         {% if current_user.id == 1 %}
                         {% if visit.patient.id == 1: %}
@@ -167,11 +190,15 @@
                         {% else %}
                         <td class="field free">Wolny</td>
                         {% endif %}
+                        {% endif %}
                         {% endfor %}
                     </tr>
                     <tr>
                         <td>15.00</td>
                         {% for visit in visits_15: %}
+                        {% if visit == 0: %}
+                        <td class="field closed">Nieczynne</td>
+                        {% else %}
                         {% if visit: %}
                         {% if current_user.id == 1 %}
                         {% if visit.patient.id == 1: %}
@@ -188,12 +215,16 @@
                         {% endif %}
                         {% else %}
                         <td class="field free">Wolny</td>
+                        {% endif %}
                         {% endif %}
                         {% endfor %}
                     </tr>
                     <tr>
                         <td>16.00</td>
                         {% for visit in visits_16: %}
+                        {% if visit == 0: %}
+                        <td class="field closed">Nieczynne</td>
+                        {% else %}
                         {% if visit: %}
                         {% if current_user.id == 1 %}
                         {% if visit.patient.id == 1: %}
@@ -210,12 +241,16 @@
                         {% endif %}
                         {% else %}
                         <td class="field free">Wolny</td>
+                        {% endif %}
                         {% endif %}
                         {% endfor %}
                     </tr>
                     <tr>
                         <td>17.00</td>
                         {% for visit in visits_17: %}
+                        {% if visit == 0: %}
+                        <td class="field closed">Nieczynne</td>
+                        {% else %}
                         {% if visit: %}
                         {% if current_user.id == 1 %}
                         {% if visit.patient.id == 1: %}
@@ -233,11 +268,15 @@
                         {% else %}
                         <td class="field free">Wolny</td>
                         {% endif %}
+                        {% endif %}
                         {% endfor %}
                     </tr>
                     <tr>
                         <td>18.00</td>
                         {% for visit in visits_18: %}
+                        {% if visit == 0: %}
+                        <td class="field closed">Nieczynne</td>
+                        {% else %}
                         {% if visit: %}
                         {% if current_user.id == 1: %}
                         {% if visit.patient.id == 1: %}
@@ -254,6 +293,7 @@
                         {% endif %}
                         {% else %}
                         <td class="field free">Wolny</td>
+                        {% endif %}
                         {% endif %}
                         {% endfor %}
                     </tr>

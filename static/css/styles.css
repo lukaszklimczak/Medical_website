@@ -239,3 +239,7 @@ td {
     color: #f47564;
     font-weight: bold;
 }
+
+.closed {
+    color: #5ba3de;
+}
