@@ -367,8 +367,16 @@ def book_a_visit():
 @login_required
 def show_visits():
     global now
+    holidays = ['01-01', '01-06', '05-01', '05-03', '08-15', '11-01', '11-11',
+                '12-25', '12-26']
     following_dates_list = [now + timedelta(days=x) for x in range(7)]
     dates_list = following_dates_list
+    days_of_week = []
+    for elem in dates_list:
+        if elem.strftime('%A') == "Saturday" or elem.strftime('%A') == "Sunday" or elem.strftime('%m-%d') in holidays:
+            days_of_week.append(None)
+        else:
+            days_of_week.append(elem)
 
     visits_at_10 = []
     visits_at_11 = []
@@ -379,16 +387,27 @@ def show_visits():
     visits_at_16 = []
     visits_at_17 = []
     visits_at_18 = []
-    for elem in dates_list:
-        visits_at_10.append(Visit.query.filter(Visit.date == elem, Visit.starts_at == '10:00:00.000000').first())
-        visits_at_11.append(Visit.query.filter(Visit.date == elem, Visit.starts_at == '11:00:00.000000').first())
-        visits_at_12.append(Visit.query.filter(Visit.date == elem, Visit.starts_at == '12:00:00.000000').first())
-        visits_at_13.append(Visit.query.filter(Visit.date == elem, Visit.starts_at == '13:00:00.000000').first())
-        visits_at_14.append(Visit.query.filter(Visit.date == elem, Visit.starts_at == '14:00:00.000000').first())
-        visits_at_15.append(Visit.query.filter(Visit.date == elem, Visit.starts_at == '15:00:00.000000').first())
-        visits_at_16.append(Visit.query.filter(Visit.date == elem, Visit.starts_at == '16:00:00.000000').first())
-        visits_at_17.append(Visit.query.filter(Visit.date == elem, Visit.starts_at == '17:00:00.000000').first())
-        visits_at_18.append(Visit.query.filter(Visit.date == elem, Visit.starts_at == '18:00:00.000000').first())
+    for elem in days_of_week:
+        if elem:
+            visits_at_10.append(Visit.query.filter(Visit.date == elem, Visit.starts_at == '10:00:00.000000').first())
+            visits_at_11.append(Visit.query.filter(Visit.date == elem, Visit.starts_at == '11:00:00.000000').first())
+            visits_at_12.append(Visit.query.filter(Visit.date == elem, Visit.starts_at == '12:00:00.000000').first())
+            visits_at_13.append(Visit.query.filter(Visit.date == elem, Visit.starts_at == '13:00:00.000000').first())
+            visits_at_14.append(Visit.query.filter(Visit.date == elem, Visit.starts_at == '14:00:00.000000').first())
+            visits_at_15.append(Visit.query.filter(Visit.date == elem, Visit.starts_at == '15:00:00.000000').first())
+            visits_at_16.append(Visit.query.filter(Visit.date == elem, Visit.starts_at == '16:00:00.000000').first())
+            visits_at_17.append(Visit.query.filter(Visit.date == elem, Visit.starts_at == '17:00:00.000000').first())
+            visits_at_18.append(Visit.query.filter(Visit.date == elem, Visit.starts_at == '18:00:00.000000').first())
+        else:
+            visits_at_10.append(0)
+            visits_at_11.append(0)
+            visits_at_12.append(0)
+            visits_at_13.append(0)
+            visits_at_14.append(0)
+            visits_at_15.append(0)
+            visits_at_16.append(0)
+            visits_at_17.append(0)
+            visits_at_18.append(0)
 
     is_booked = None
     user_visits = Visit.query.filter(Visit.date >= date.today(), Visit.patient_id == current_user.id).all()
@@ -407,7 +426,7 @@ def show_visits():
             now = dates_list[6]
             return redirect(url_for('show_visits'))
 
-    return render_template('visits.html', days=dates_list, visits=user_visits, visits_10=visits_at_10,
+    return render_template('visits.html', days=dates_list, days_of_week=days_of_week, visits=user_visits, visits_10=visits_at_10,
                            visits_11=visits_at_11,
                            visits_12=visits_at_12, visits_13=visits_at_13, visits_14=visits_at_14,
                            visits_15=visits_at_15, visits_16=visits_at_16, visits_17=visits_at_17,
@@ -525,6 +544,14 @@ def block_term():
         return redirect(url_for('show_visits'))
 
     return render_template('block-term.html', form=form, current_user=current_user)
+
+
+def show_patients():
+    pass
+
+
+def delete_patient():
+    pass
 
 
 if __name__ == "__main__":
