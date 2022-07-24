@@ -274,7 +274,7 @@ def book_a_visit():
                     available_hours.remove(not_available_hours[i][0])
 
             if db.session.query(Visit).filter(Visit.date == form.date.data,
-                                              Visit.starts_at == form.starts_at.data).first():
+                                              Visit.starts_at == datetime.strptime(form.starts_at.data.strftime('%H:00'), '%H:00').time()).first():
                 available_hours_to_string = ", ".join(available_hours)
                 message = f"Dostępne godziny w tym dniu to {available_hours_to_string}"
                 flash("Ten termin wizyty jest już zarezerwowany. Wybierz inny termin wizyty.")
@@ -297,7 +297,7 @@ def book_a_visit():
 
             new_visit = Visit(
                 date=form.date.data,
-                starts_at=form.starts_at.data,
+                starts_at=datetime.strptime(form.starts_at.data.strftime('%H:00'), '%H:00').time(),
                 # ends_at=form.ends_at.data,
                 confirmed=True,
                 patient_id=user.id
@@ -329,7 +329,7 @@ def book_a_visit():
                     available_hours.remove(not_available_hours[i][0])
 
             if db.session.query(Visit).filter(Visit.date == form.date.data,
-                                              Visit.starts_at == form.starts_at.data).first():
+                                              Visit.starts_at == datetime.strptime(form.starts_at.data.strftime('%H:00'), '%H:00').time()).first():
                 available_hours_to_string = ", ".join(available_hours)
                 message = f"Dostępne godziny w tym dniu to {available_hours_to_string}"
                 flash("Ten termin wizyty jest już zarezerwowany. Wybierz inny termin wizyty.")
@@ -352,7 +352,7 @@ def book_a_visit():
 
             new_visit = Visit(
                 date=form.date.data,
-                starts_at=form.starts_at.data,
+                starts_at=datetime.strptime(form.starts_at.data.strftime('%H:00'), '%H:00').time(),
                 # ends_at=form.ends_at.data,
                 patient_id=current_user.id
             )
