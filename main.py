@@ -93,6 +93,13 @@ def login_required(f):
     return decorated_function
 
 
+@app.context_processor
+def utility_processor():
+    def display_patient_visits(patient):
+        return Visit.query.filter(Visit.date >= date.today(), Visit.patient_id == patient.id).all()
+    return dict(display_patient_visits=display_patient_visits)
+
+
 @app.route("/")
 def about():
     return render_template("about.html")
@@ -532,7 +539,7 @@ def block_term():
 
         blocked_term = Visit(
             date=form.date.data,
-            starts_at=form.starts_at.data,
+            starts_at=datetime.strptime(form.starts_at.data.strftime('%H:00'), '%H:00').time(),
             # ends_at=form.ends_at.data,
             confirmed=True,
             patient_id=current_user.id
@@ -546,10 +553,15 @@ def block_term():
     return render_template('block-term.html', form=form, current_user=current_user)
 
 
+@app.route('/show_patients', methods=['GET'])
+@admin_only
 def show_patients():
-    pass
+    patients = User.query.all()
+    return render_template('show-patients.html', patients=patients)
 
 
+@app.route('/delete_patient', methods=['GET', 'POST'])
+@admin_only
 def delete_patient():
     pass
 

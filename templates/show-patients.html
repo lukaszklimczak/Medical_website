@@ -1,0 +1,51 @@
+{% extends "base.html" %}
+{% import "bootstrap/wtf.html" as wtf %}
+
+{% block content %}
+<main>
+    <div class="team-container">
+        <div class="wrapper">
+            <table>
+                <tr>
+                    <th>ID</th>
+                    <th>Imię</th>
+                    <th>Nazwisko</th>
+                    <th>Email</th>
+                    <th>Telefon</th>
+                    <th>Wizyty</th>
+                    <th>Usuń</th>
+                </tr>
+                {% for patient in patients: %}
+                <tr>
+                    <td class="field">{{patient.id}}</td>
+                    <td class="field">{{patient.first_name}}</td>
+                    <td class="field">{{patient.last_name}}</td>
+                    <td class="field">{{patient.email}}</td>
+                    <td class="field">{{patient.mobile}}</td>
+                    <td class="field">
+                        {% if display_patient_visits(patient) %}
+                        {% for visit in display_patient_visits(patient): %}
+                        {{ visit.date }} {{ visit.starts_at }}
+                        {% endfor %}
+                        {% else %}
+                        Brak wizyt
+                        {% endif %}
+                    </td>
+                    <td>
+                        {% if patient.id != 1 %}
+                        <a href="{{ url_for('delete_patient')}}"><button type="button" class="btn btn-danger btn-sm">Usuń pacjenta</button></a>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% endfor %}
+            </table>
+        </div>
+    </div>
+</main>
+{% endblock %}
+
+{% block footer %}
+
+    {% include 'footer.html' %}
+
+{% endblock %}
