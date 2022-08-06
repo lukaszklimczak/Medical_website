@@ -10,12 +10,13 @@
                     <th>ID</th>
                     <th>Imię</th>
                     <th>Nazwisko</th>
-                    <th>Email</th>
+                    <th class="tdwide">Email</th>
                     <th>Telefon</th>
-                    <th>Wizyty</th>
-                    <th>Usuń</th>
+                    <th class="tdwide">Wizyty</th>
+                    <th class="tdwide">Usuń</th>
                 </tr>
                 {% for patient in patients: %}
+                {% if patient.id > 1: %}
                 <tr>
                     <td class="field">{{patient.id}}</td>
                     <td class="field">{{patient.first_name}}</td>
@@ -32,11 +33,13 @@
                         {% endif %}
                     </td>
                     <td>
-                        {% if patient.id != 1 %}
-                        <a href="{{ url_for('delete_patient')}}"><button type="button" class="btn btn-danger btn-sm">Usuń pacjenta</button></a>
-                        {% endif %}
+                        <form action="/delete_patient" method="post">
+                            <input name="id" type="hidden" value="{{ patient.id }}">
+                            <button type="submit" class="btn btn-danger btn-sm">Usuń pacjenta</button>
+                        </form>
                     </td>
                 </tr>
+                {% endif %}
                 {% endfor %}
             </table>
         </div>
