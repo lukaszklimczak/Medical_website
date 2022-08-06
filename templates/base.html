@@ -48,6 +48,11 @@
                     <a class="nav-link" href="{{url_for('login')}}">Zaloguj</a>
                 </li>
                 {% else: %}
+                {% if current_user.id == 1 %}
+                <li class="nav-item">
+                    <a class="nav-link" href="{{url_for('show_patients')}}">Pacjenci</a>
+                </li>
+                {% endif %}
                 <li class="nav-item">
                     <a class="nav-link" href="{{url_for('logout')}}">Wyloguj</a>
                 </li>
