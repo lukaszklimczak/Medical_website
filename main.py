@@ -563,7 +563,14 @@ def show_patients():
 @app.route('/delete_patient', methods=['GET', 'POST'])
 @admin_only
 def delete_patient():
-    pass
+    user_id = request.form.get('id')
+    print(user_id)
+    print("Coś nie tak?")
+    patient_to_delete = User.query.get(user_id)
+    db.session.delete(patient_to_delete)
+    db.session.commit()
+    patients = User.query.all()
+    return render_template('show-patients.html', patients=patients)
 
 
 if __name__ == "__main__":

@@ -243,3 +243,7 @@ td {
 .closed {
     color: #5ba3de;
 }
+
+.tdwide {
+    width:  8rem;
+}
