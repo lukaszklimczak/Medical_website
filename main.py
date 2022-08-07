@@ -478,15 +478,20 @@ def delete_a_visit():
                 date=delete_form.date.data,
                 starts_at=delete_form.starts_at.data,
             )
-            date_of_visit_to_delete = delete_form.date.data
-            starts_at_of_visit_to_delete = delete_form.starts_at.data
-            visit_to_delete = db.session.query(Visit).filter(Visit.date == date_of_visit_to_delete,
-                                                             Visit.starts_at == starts_at_of_visit_to_delete).first()
 
         if delete_form.validate_on_submit():
 
+            date_of_visit_to_delete = delete_form.date.data
+            starts_at_of_visit_to_delete = datetime.strptime(delete_form.starts_at.data.strftime('%H:00'), '%H:00').time()
+            visit_to_delete = db.session.query(Visit).filter(Visit.date == date_of_visit_to_delete,
+                                                             Visit.starts_at == starts_at_of_visit_to_delete).first()
+
             if not visit_to_delete:
                 flash("Nie ma takiej wizyty.")
+                return redirect(url_for('show_visits'))
+
+            if visit_to_delete.patient.email != current_user.email:
+                flash("Możesz usunąć tylko wizytę zarejestrowaną na Twój adres e-mail.")
                 return redirect(url_for('show_visits'))
 
             db.session.delete(visit_to_delete)
@@ -564,13 +569,19 @@ def show_patients():
 @admin_only
 def delete_patient():
     user_id = request.form.get('id')
-    print(user_id)
-    print("Coś nie tak?")
     patient_to_delete = User.query.get(user_id)
     db.session.delete(patient_to_delete)
     db.session.commit()
     patients = User.query.all()
     return render_template('show-patients.html', patients=patients)
+
+
+def show_profile():
+    pass
+
+
+def edit_profile():
+    pass
 
 
 if __name__ == "__main__":
