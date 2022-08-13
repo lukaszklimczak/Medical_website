@@ -56,14 +56,12 @@
                 <li class="nav-item">
                     <a class="nav-link" href="{{url_for('logout')}}">Wyloguj</a>
                 </li>
+                <li class="nav-item">
+                    <a  class="nav-link hello" href="{{url_for('show_profile')}}">Witaj {{current_user.first_name}}</a>
+                </li>
                 {% endif %}
             </ul>
-            <div class="search">
-            <form class="form-inline my-2 my-lg-0">
-              <input class="form-control mr-sm-2" type="search" placeholder="Search" aria-label="Search">
-              <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Szukaj</button>
-            </form>
-            </div>
+
         </div>
     </nav>
     {% endblock %}

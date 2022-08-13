@@ -1,4 +1,5 @@
 /* navigation bar */
+
 .navbar {
     position: absolute;
     z-index: 4;
@@ -13,10 +14,8 @@
     font-size: 1rem;
 }
 
-.search {
-    position: absolute;
-    right: 0;
-    margin-right: 20px;
+.hello {
+    font-style: italic;
 }
 
 /*middle container */
