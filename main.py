@@ -7,7 +7,7 @@ import os
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy.orm import relationship
 from datetime import date, datetime, timedelta
-from forms import RegisterForm, LoginForm, CreatePostForm, BookVisitForm
+from forms import RegisterForm, LoginForm, CreatePostForm, BookVisitForm, EditProfileForm
 from functools import wraps
 from werkzeug.security import generate_password_hash, check_password_hash
 from sqlalchemy import func
@@ -576,12 +576,55 @@ def delete_patient():
     return render_template('show-patients.html', patients=patients)
 
 
+@app.route('/show_profile', methods=['GET'])
+@login_required
 def show_profile():
-    pass
+    is_booked = None
+    user_visits = Visit.query.filter(Visit.date >= date.today(), Visit.patient_id == current_user.id).all()
+    if user_visits:
+        is_booked = True
+    return render_template("show-profile.html", current_user=current_user, visits=user_visits, booked=is_booked)
 
 
+@app.route('/edit_profile', methods=['GET', 'POST'])
+@login_required
 def edit_profile():
-    pass
+    user_id = current_user.id
+    profile_to_edit = User.query.get(user_id)
+    edit_form = EditProfileForm(
+        password=profile_to_edit.password,
+        first_name=profile_to_edit.first_name,
+        last_name=profile_to_edit.last_name,
+        mobile=profile_to_edit.mobile,
+    )
+    if edit_form.validate_on_submit():
+
+        if edit_form.password.data:
+            hash_and_salted_password = generate_password_hash(
+                edit_form.password.data,
+                method='pbkdf2:sha256',
+                salt_length=8
+            )
+            profile_to_edit.password = hash_and_salted_password
+        else:
+            pass
+        profile_to_edit.first_name = edit_form.first_name.data
+        profile_to_edit.last_name = edit_form.last_name.data
+        profile_to_edit.mobile = edit_form.mobile.data
+        db.session.commit()
+        return redirect(url_for('about'))
+
+    return render_template('edit-profile.html', form=edit_form, current_user=current_user)
+
+
+@app.route('/delete_profile', methods=['GET', 'POST'])
+@login_required
+def delete_profile():
+    user_id = current_user.id
+    patient_to_delete = User.query.get(user_id)
+    db.session.delete(patient_to_delete)
+    db.session.commit()
+    return render_template('about.html')
 
 
 if __name__ == "__main__":

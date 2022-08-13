@@ -34,3 +34,11 @@ class BookVisitForm(FlaskForm):
     starts_at = TimeField("Godzina rozpoczęcia wizyty", format='%H:%M',  validators=[DataRequired()])
     # ends_at = DateTimeField("Godzina zakończenia wizyty", format='%H:%M:%S')
     submit = SubmitField("Zatwierdź")
+
+
+class EditProfileForm(FlaskForm):
+    password = PasswordField("Nowe Hasło")
+    first_name = StringField("Imię")
+    last_name = StringField("Nazwisko")
+    mobile = StringField("Telefon")
+    submit = SubmitField("Zatwierdź")
