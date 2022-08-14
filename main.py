@@ -93,13 +93,6 @@ def login_required(f):
     return decorated_function
 
 
-@app.context_processor
-def utility_processor():
-    def display_patient_visits(patient):
-        return Visit.query.filter(Visit.date >= date.today(), Visit.patient_id == patient.id).all()
-    return dict(display_patient_visits=display_patient_visits)
-
-
 @app.route("/")
 def about():
     return render_template("about.html")
@@ -370,51 +363,50 @@ def book_a_visit():
     return render_template('book.html', form=form, current_user=current_user)
 
 
+@app.context_processor
+def utility_processor():
+    def make_list_visits(hour, list_of_days):
+        list_of_visits_at_specific_time = []
+        for elem in list_of_days:
+            if elem:
+                list_of_visits_at_specific_time.append(Visit.query.filter(Visit.date == elem, Visit.starts_at == datetime.strptime(hour, '%H').time()).first())
+            else:
+                list_of_visits_at_specific_time.append(0)
+        return list_of_visits_at_specific_time
+    return dict(make_list_visits=make_list_visits)
+
+
 @app.route('/visits/', methods=['GET', 'POST'])
 @login_required
 def show_visits():
     global now
     holidays = ['01-01', '01-06', '05-01', '05-03', '08-15', '11-01', '11-11',
                 '12-25', '12-26']
+
+    hours = ['10', '11', '12', '13', '14', '15', '16', '17', '18']
+
     following_dates_list = [now + timedelta(days=x) for x in range(7)]
     dates_list = following_dates_list
+    free_days = []
     days_of_week = []
     for elem in dates_list:
         if elem.strftime('%A') == "Saturday" or elem.strftime('%A') == "Sunday" or elem.strftime('%m-%d') in holidays:
-            days_of_week.append(None)
+            free_days.append(None)
+            days_of_week.append(elem.strftime('%A'))
         else:
-            days_of_week.append(elem)
+            free_days.append(elem)
+            days_of_week.append(elem.strftime('%A'))
 
-    visits_at_10 = []
-    visits_at_11 = []
-    visits_at_12 = []
-    visits_at_13 = []
-    visits_at_14 = []
-    visits_at_15 = []
-    visits_at_16 = []
-    visits_at_17 = []
-    visits_at_18 = []
-    for elem in days_of_week:
-        if elem:
-            visits_at_10.append(Visit.query.filter(Visit.date == elem, Visit.starts_at == '10:00:00.000000').first())
-            visits_at_11.append(Visit.query.filter(Visit.date == elem, Visit.starts_at == '11:00:00.000000').first())
-            visits_at_12.append(Visit.query.filter(Visit.date == elem, Visit.starts_at == '12:00:00.000000').first())
-            visits_at_13.append(Visit.query.filter(Visit.date == elem, Visit.starts_at == '13:00:00.000000').first())
-            visits_at_14.append(Visit.query.filter(Visit.date == elem, Visit.starts_at == '14:00:00.000000').first())
-            visits_at_15.append(Visit.query.filter(Visit.date == elem, Visit.starts_at == '15:00:00.000000').first())
-            visits_at_16.append(Visit.query.filter(Visit.date == elem, Visit.starts_at == '16:00:00.000000').first())
-            visits_at_17.append(Visit.query.filter(Visit.date == elem, Visit.starts_at == '17:00:00.000000').first())
-            visits_at_18.append(Visit.query.filter(Visit.date == elem, Visit.starts_at == '18:00:00.000000').first())
-        else:
-            visits_at_10.append(0)
-            visits_at_11.append(0)
-            visits_at_12.append(0)
-            visits_at_13.append(0)
-            visits_at_14.append(0)
-            visits_at_15.append(0)
-            visits_at_16.append(0)
-            visits_at_17.append(0)
-            visits_at_18.append(0)
+    mapping = {
+        'Monday': 'Poniedziałek',
+        'Tuesday': 'Wtorek',
+        'Wednesday': 'Środa',
+        'Thursday': 'Czwartek',
+        'Friday': 'Piątek',
+        'Saturday': 'Sobota',
+        'Sunday': 'Niedziela',
+    }
+    days_of_week = [mapping.get(word, word) for word in days_of_week]
 
     is_booked = None
     user_visits = Visit.query.filter(Visit.date >= date.today(), Visit.patient_id == current_user.id).all()
@@ -433,11 +425,8 @@ def show_visits():
             now = dates_list[6]
             return redirect(url_for('show_visits'))
 
-    return render_template('visits.html', days=dates_list, days_of_week=days_of_week, visits=user_visits, visits_10=visits_at_10,
-                           visits_11=visits_at_11,
-                           visits_12=visits_at_12, visits_13=visits_at_13, visits_14=visits_at_14,
-                           visits_15=visits_at_15, visits_16=visits_at_16, visits_17=visits_at_17,
-                           visits_18=visits_at_18, booked=is_booked)
+    return render_template('visits.html', days=dates_list, free_days=free_days, visits=user_visits, hours=hours,
+                           days_of_week=days_of_week, booked=is_booked)
 
 
 @app.route('/delete', methods=['GET', 'POST'])
@@ -556,6 +545,13 @@ def block_term():
         return redirect(url_for('show_visits'))
 
     return render_template('block-term.html', form=form, current_user=current_user)
+
+
+@app.context_processor
+def utility_processor():
+    def display_patient_visits(patient):
+        return Visit.query.filter(Visit.date >= date.today(), Visit.patient_id == patient.id).all()
+    return dict(display_patient_visits=display_patient_visits)
 
 
 @app.route('/show_patients', methods=['GET'])
