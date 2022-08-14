@@ -50,228 +50,29 @@
                 <br>
                 <div class="schedule-container">
                     <table class="schedule">
+
+                        <tr>
+                           <th></th>
+                            {% for day in days_of_week: %}
+                            <td>{{day}}</td>
+                            {% endfor %}
+                        </tr>
+
                         <tr>
                             <th>Godzina</th>
-                            {% for date in days_of_week: %}
+                            {% for date in free_days: %}
                             {% if date: %}
                             <th>{{date}}</th>
                             {% else %}
                             <th>Nieczynne</th>
                             {% endif %}
                             {% endfor %}
+                        </tr>
 
-                        </tr>
+                        {% for hour in hours: %}
                         <tr>
-                            <td>10.00</td>
-                            {% for visit in visits_10: %}
-                            {% if visit == 0: %}
-                            <td class="field closed">Nieczynne</td>
-                            {% else %}
-                            {% if visit: %}
-                            {% if current_user.id == 1 %}
-                            {% if visit.patient.id == 1: %}
-                            <td class="field busy">Zablokowałeś termin</td>
-                            {% else %}
-                            <td class="field">Nr ID: {{visit.patient.id}} | {{visit.patient.first_name}} {{visit.patient.last_name}} {{visit.patient.email}} {{visit.patient.mobile}}</td>
-                            {% endif %}
-                            {% else %}
-                            {% if visit.patient.id == 1: %}
-                            <td class="field busy">Zablokowano termin</td>
-                            {% else %}
-                            <td class="field busy">Zajęty</td>
-                            {% endif %}
-                            {% endif %}
-                            {% else %}
-                            <td class="field free">Wolny</td>
-                            {% endif %}
-                            {% endif %}
-                            {% endfor %}
-                        </tr>
-                        <tr>
-                            <td>11.00</td>
-                            {% for visit in visits_11: %}
-                            {% if visit == 0: %}
-                            <td class="field closed">Nieczynne</td>
-                            {% else %}
-                            {% if visit: %}
-                            {% if current_user.id == 1 %}
-                            {% if visit.patient.id == 1: %}
-                            <td class="field busy">Zablokowałeś termin</td>
-                            {% else %}
-                            <td class="field">Nr ID: {{visit.patient.id}} | {{visit.patient.first_name}} {{visit.patient.last_name}} {{visit.patient.email}} {{visit.patient.mobile}}</td>
-                            {% endif %}
-                            {% else %}
-                            {% if visit.patient.id == 1: %}
-                            <td class="field busy">Zablokowano termin</td>
-                            {% else %}
-                            <td class="field busy">Zajęty</td>
-                            {% endif %}
-                            {% endif %}
-                            {% else %}
-                            <td class="field free">Wolny</td>
-                            {% endif %}
-                            {% endif %}
-                            {% endfor %}
-                        </tr>
-                        <tr>
-                            <td>12.00</td>
-                            {% for visit in visits_12: %}
-                            {% if visit == 0: %}
-                            <td class="field closed">Nieczynne</td>
-                            {% else %}
-                            {% if visit: %}
-                            {% if current_user.id == 1 %}
-                            {% if visit.patient.id == 1: %}
-                            <td class="field busy">Zablokowałeś termin</td>
-                            {% else %}
-                            <td class="field">Nr ID: {{visit.patient.id}} | {{visit.patient.first_name}} {{visit.patient.last_name}} {{visit.patient.email}} {{visit.patient.mobile}}</td>
-                            {% endif %}
-                            {% else %}
-                            {% if visit.patient.id == 1: %}
-                            <td class="field busy">Zablokowano termin</td>
-                            {% else %}
-                            <td class="field busy">Zajęty</td>
-                            {% endif %}
-                            {% endif %}
-                            {% else %}
-                            <td class="field free">Wolny</td>
-                            {% endif %}
-                            {% endif %}
-                            {% endfor %}
-                        </tr>
-                        <tr>
-                            <td>13.00</td>
-                            {% for visit in visits_13: %}
-                            {% if visit == 0: %}
-                            <td class="field closed">Nieczynne</td>
-                            {% else %}
-                            {% if visit: %}
-                            {% if current_user.id == 1 %}
-                            {% if visit.patient.id == 1: %}
-                            <td class="field busy">Zablokowałeś termin</td>
-                            {% else %}
-                            <td class="field">Nr ID: {{visit.patient.id}} | {{visit.patient.first_name}} {{visit.patient.last_name}} {{visit.patient.email}} {{visit.patient.mobile}}</td>
-                            {% endif %}
-                            {% else %}
-                            {% if visit.patient.id == 1: %}
-                            <td class="field busy">Zablokowano termin</td>
-                            {% else %}
-                            <td class="field busy">Zajęty</td>
-                            {% endif %}
-                            {% endif %}
-                            {% else %}
-                            <td class="field free">Wolny</td>
-                            {% endif %}
-                            {% endif %}
-                            {% endfor %}
-                        </tr>
-                        <tr>
-                            <td>14.00</td>
-                            {% for visit in visits_14: %}
-                            {% if visit == 0: %}
-                            <td class="field closed">Nieczynne</td>
-                            {% else %}
-                            {% if visit: %}
-                            {% if current_user.id == 1 %}
-                            {% if visit.patient.id == 1: %}
-                            <td class="field busy">Zablokowałeś termin</td>
-                            {% else %}
-                            <td class="field busy">Nr ID: {{visit.patient.id}} | {{visit.patient.first_name}} {{visit.patient.last_name}} {{visit.patient.email}} {{visit.patient.mobile}}</td>
-                            {% endif %}
-                            {% else %}
-                            {% if visit.patient.id == 1: %}
-                            <td class="field busy">Zablokowano termin</td>
-                            {% else %}
-                            <td class="field">Zajęty</td>
-                            {% endif %}
-                            {% endif %}
-                            {% else %}
-                            <td class="field free">Wolny</td>
-                            {% endif %}
-                            {% endif %}
-                            {% endfor %}
-                        </tr>
-                        <tr>
-                            <td>15.00</td>
-                            {% for visit in visits_15: %}
-                            {% if visit == 0: %}
-                            <td class="field closed">Nieczynne</td>
-                            {% else %}
-                            {% if visit: %}
-                            {% if current_user.id == 1 %}
-                            {% if visit.patient.id == 1: %}
-                            <td class="field busy">Zablokowałeś termin</td>
-                            {% else %}
-                            <td class="field">Nr ID: {{visit.patient.id}} | {{visit.patient.first_name}} {{visit.patient.last_name}} {{visit.patient.email}} {{visit.patient.mobile}}</td>
-                            {% endif %}
-                            {% else %}
-                            {% if visit.patient.id == 1: %}
-                            <td class="field busy">Zablokowano termin</td>
-                            {% else %}
-                            <td class="field busy">Zajęty</td>
-                            {% endif %}
-                            {% endif %}
-                            {% else %}
-                            <td class="field free">Wolny</td>
-                            {% endif %}
-                            {% endif %}
-                            {% endfor %}
-                        </tr>
-                        <tr>
-                            <td>16.00</td>
-                            {% for visit in visits_16: %}
-                            {% if visit == 0: %}
-                            <td class="field closed">Nieczynne</td>
-                            {% else %}
-                            {% if visit: %}
-                            {% if current_user.id == 1 %}
-                            {% if visit.patient.id == 1: %}
-                            <td class="field busy">Zablokowałeś termin</td>
-                            {% else %}
-                            <td class="field">Nr ID: {{visit.patient.id}} | {{visit.patient.first_name}} {{visit.patient.last_name}} {{visit.patient.email}} {{visit.patient.mobile}}</td>
-                            {% endif %}
-                            {% else %}
-                            {% if visit.patient.id == 1: %}
-                            <td class="field busy">Zablokowano termin</td>
-                            {% else %}
-                            <td class="field busy">Zajęty</td>
-                            {% endif %}
-                            {% endif %}
-                            {% else %}
-                            <td class="field free">Wolny</td>
-                            {% endif %}
-                            {% endif %}
-                            {% endfor %}
-                        </tr>
-                        <tr>
-                            <td>17.00</td>
-                            {% for visit in visits_17: %}
-                            {% if visit == 0: %}
-                            <td class="field closed">Nieczynne</td>
-                            {% else %}
-                            {% if visit: %}
-                            {% if current_user.id == 1 %}
-                            {% if visit.patient.id == 1: %}
-                            <td class="field busy">Zablokowałeś termin</td>
-                            {% else %}
-                            <td class="field">Nr ID: {{visit.patient.id}} | {{visit.patient.first_name}} {{visit.patient.last_name}} {{visit.patient.email}} {{visit.patient.mobile}}</td>
-                            {% endif %}
-                            {% else %}
-                            {% if visit.patient.id == 1: %}
-                            <td class="field busy">Zablokowano termin</td>
-                            {% else %}
-                            <td class="field busy">Zajęty</td>
-                            {% endif %}
-                            {% endif %}
-                            {% else %}
-                            <td class="field free">Wolny</td>
-                            {% endif %}
-                            {% endif %}
-                            {% endfor %}
-                        </tr>
-                        <tr>
-                            <td>18.00</td>
-                            {% for visit in visits_18: %}
+                            <td>{{hour}}:00</td>
+                            {% for visit in make_list_visits(hour, free_days) %}
                             {% if visit == 0: %}
                             <td class="field closed">Nieczynne</td>
                             {% else %}
@@ -280,7 +81,11 @@
                             {% if visit.patient.id == 1: %}
                             <td class="field busy">Zablokowałeś termin</td>
                             {% else %}
-                            <td class="field">Nr ID: {{visit.patient.id}} | {{visit.patient.first_name}} {{visit.patient.last_name}} {{visit.patient.email}} {{visit.patient.mobile}}</td>
+                            {% if visit.patient.id: %}
+                            <td class="field">Nr ID: {{visit.patient.id}}; {{visit.patient.first_name}} {{visit.patient.last_name}}<br>{{visit.patient.email}}<br>{{visit.patient.mobile}}</td>
+                            {% else %}
+                            <td class="field">Konto usunięte</td>
+                            {% endif %}
                             {% endif %}
                             {% else %}
                             {% if visit.patient.id == 1: %}
@@ -294,7 +99,10 @@
                             {% endif %}
                             {% endif %}
                             {% endfor %}
+
                         </tr>
+                        {% endfor %}
+
                     </table>
                 </div>
 
