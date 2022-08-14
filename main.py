@@ -1,7 +1,7 @@
 from flask import Flask, render_template, url_for, redirect, flash, abort, session, request
 from flask_bootstrap import Bootstrap
 from flask_ckeditor import CKEditor
-from flask_login import LoginManager, UserMixin, login_user, logout_user, current_user
+from flask_login import LoginManager, UserMixin, login_user, logout_user, current_user, login_required
 from dotenv import load_dotenv, find_dotenv
 import os
 from flask_sqlalchemy import SQLAlchemy
@@ -63,8 +63,6 @@ class Visit(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     date = db.Column(db.Date, nullable=False)
     starts_at = db.Column(db.Time, nullable=False)
-    # ends_at = db.Column(db.Time, nullable=False)
-    confirmed = db.Column(db.Boolean, default=False, nullable=False)
     patient_id = db.Column(db.Integer, db.ForeignKey('users.id'))
 
 
@@ -87,7 +85,7 @@ def login_required(f):
         if current_user.is_authenticated:
             return f(*args, **kwargs)
         else:
-            flash("Aby zarezerwować termin musisz być zalogowany")
+            flash("Aby to zrobić musisz być zalogowany", 'error')
             return redirect(url_for('login'))
 
     return decorated_function
@@ -148,7 +146,7 @@ def register():
     form = RegisterForm()
     if form.validate_on_submit():
         if User.query.filter_by(email=form.email.data).first():
-            flash("Użytkownik o takim adresie e-mail został już zarejestrowany. Wybierz opcję 'Zaloguj się'")
+            flash("Użytkownik o takim adresie e-mail został już zarejestrowany. Wybierz opcję 'Zaloguj się'", 'error')
             return redirect(url_for('login'))
 
         hash_and_salted_password = generate_password_hash(
@@ -179,10 +177,10 @@ def login():
 
         user = User.query.filter_by(email=email).first()
         if not user:
-            flash("Użytkownik o takim adresie e-mail nie istnieje. Spróbuj ponownie.")
+            flash("Użytkownik o takim adresie e-mail nie istnieje. Spróbuj ponownie.", 'error')
             return redirect(url_for('login'))
         elif not check_password_hash(user.password, password):
-            flash("Podane hasło jest nieprawidłowe. Spróbuj ponownie.")
+            flash("Podane hasło jest nieprawidłowe. Spróbuj ponownie.", 'error')
             return redirect(url_for('login'))
         else:
             login_user(user)
@@ -261,6 +259,9 @@ def book_a_visit():
     all_hours = ['10:00', '11:00', '12:00', '13:00', '14:00', '15:00', '16:00',
                  '17:00', '18:00']
 
+    holidays = ['01-01', '01-06', '05-01', '05-03', '08-15', '11-01', '11-11',
+                '12-25', '12-26']
+
     if current_user.id == 1:
         form = BookVisitForm()
         if form.validate_on_submit():
@@ -274,32 +275,37 @@ def book_a_visit():
                     available_hours.remove(not_available_hours[i][0])
 
             if db.session.query(Visit).filter(Visit.date == form.date.data,
-                                              Visit.starts_at == datetime.strptime(form.starts_at.data.strftime('%H:00'), '%H:00').time()).first():
+                                              Visit.starts_at == datetime.strptime(form.starts_at.data.strftime('%H:00'),
+                                                                                   '%H:00').time()).first():
                 available_hours_to_string = ", ".join(available_hours)
                 message = f"Dostępne godziny w tym dniu to {available_hours_to_string}"
-                flash("Ten termin wizyty jest już zarezerwowany. Wybierz inny termin wizyty.")
+                flash("Ten termin wizyty jest już zarezerwowany. Wybierz inny termin wizyty.", 'error')
                 flash(message)
                 return redirect(url_for('book_a_visit'))
 
             if selected_date <= date.today():
-                flash("Wizytę można zarezerwować jedynie w dni nadchodzące.")
+                flash("Wizytę można zarezerwować jedynie w dni nadchodzące.", 'error')
                 return redirect(url_for('book_a_visit'))
 
             if selected_date.strftime('%A') == "Saturday" or selected_date.strftime('%A') == "Sunday":
-                flash("Poradnia jest czynna od poniedziałku do piątku. Proszę zarezerwować termin w dni pracy Poradni.")
+                flash("Poradnia jest czynna od poniedziałku do piątku.\n Proszę zarezerwować termin w dni pracy Poradni.",
+                      'error')
+                return redirect(url_for('book_a_visit'))
+
+            if selected_date.strftime('%m-%d') in holidays:
+                flash("Poradnia w tym dniu jest nieczynna.\n Proszę zarezerwować termin w dni pracy Poradni.",
+                      'error')
                 return redirect(url_for('book_a_visit'))
 
             if form.starts_at.data < datetime.strptime(available_hours[0],
                                                        '%H:%M').time() or form.starts_at.data > datetime.strptime(
                 available_hours[len(available_hours) - 1], '%H:%M').time():
-                flash("Wizytę można zarezerwować od godziny 10:00 do godziny 18:00.")
+                flash("Wizytę można zarezerwować od godziny 10:00 do godziny 18:00.", 'error')
                 return redirect(url_for('book_a_visit'))
 
             new_visit = Visit(
                 date=form.date.data,
                 starts_at=datetime.strptime(form.starts_at.data.strftime('%H:00'), '%H:00').time(),
-                # ends_at=form.ends_at.data,
-                confirmed=True,
                 patient_id=user.id
             )
 
@@ -318,7 +324,7 @@ def book_a_visit():
                     db.session.query(Visit).filter(Visit.date >= date.today(),
                                                    Visit.patient_id == current_user.id).first():
                 flash("Użytkownik o takim adresie e-mail już zarezerwował wizytę."
-                      " Można mieć tylko jedną zarezerwowaną wizytę!")
+                      " Można mieć tylko jedną zarezerwowaną wizytę!", 'error')
                 return redirect(url_for('book_a_visit'))
 
             not_available_hours = db.session.query(func.strftime('%H:00', Visit.starts_at)).filter(
@@ -329,31 +335,37 @@ def book_a_visit():
                     available_hours.remove(not_available_hours[i][0])
 
             if db.session.query(Visit).filter(Visit.date == form.date.data,
-                                              Visit.starts_at == datetime.strptime(form.starts_at.data.strftime('%H:00'), '%H:00').time()).first():
+                                              Visit.starts_at == datetime.strptime(form.starts_at.data.strftime('%H:00'),
+                                                                                   '%H:00').time()).first():
                 available_hours_to_string = ", ".join(available_hours)
                 message = f"Dostępne godziny w tym dniu to {available_hours_to_string}"
-                flash("Ten termin wizyty jest już zarezerwowany. Wybierz inny termin wizyty.")
+                flash("Ten termin wizyty jest już zarezerwowany. Wybierz inny termin wizyty.", 'error')
                 flash(message)
                 return redirect(url_for('book_a_visit'))
 
             if selected_date <= date.today():
-                flash("Wizytę można zarezerwować jedynie w dni nadchodzące.")
+                flash("Wizytę można zarezerwować jedynie w dni nadchodzące.", 'error')
                 return redirect(url_for('book_a_visit'))
 
             if selected_date.strftime('%A') == "Saturday" or selected_date.strftime('%A') == "Sunday":
-                flash("Poradnia jest czynna od poniedziałku do piątku. Proszę zarezerwować termin w dni pracy Poradni.")
+                flash("Poradnia jest czynna od poniedziałku do piątku. Proszę zarezerwować termin w dni pracy Poradni.",
+                      'error')
+                return redirect(url_for('book_a_visit'))
+
+            if selected_date.strftime('%m-%d') in holidays:
+                flash("Poradnia w tym dniu jest nieczynna.\n Proszę zarezerwować termin w dni pracy Poradni.",
+                      'error')
                 return redirect(url_for('book_a_visit'))
 
             if form.starts_at.data < datetime.strptime(available_hours[0],
                                                        '%H:%M').time() or form.starts_at.data > datetime.strptime(
                 available_hours[len(available_hours) - 1], '%H:%M').time():
-                flash("Wizytę można zarezerwować od godziny 10:00 do godziny 18:00.")
+                flash("Wizytę można zarezerwować od godziny 10:00 do godziny 18:00.", 'error')
                 return redirect(url_for('book_a_visit'))
 
             new_visit = Visit(
                 date=form.date.data,
                 starts_at=datetime.strptime(form.starts_at.data.strftime('%H:00'), '%H:00').time(),
-                # ends_at=form.ends_at.data,
                 patient_id=current_user.id
             )
             db.session.add(new_visit)
@@ -441,7 +453,7 @@ def delete_a_visit():
                                                              Visit.starts_at == starts_at_of_visit_to_delete).first()
 
             if not visit_to_delete:
-                flash("Nie ma takiej wizyty.")
+                flash("Nie ma takiej wizyty.", 'error')
                 return redirect(url_for('show_visits'))
 
             db.session.delete(visit_to_delete)
@@ -476,11 +488,11 @@ def delete_a_visit():
                                                              Visit.starts_at == starts_at_of_visit_to_delete).first()
 
             if not visit_to_delete:
-                flash("Nie ma takiej wizyty.")
+                flash("Nie ma takiej wizyty.", 'error')
                 return redirect(url_for('show_visits'))
 
             if visit_to_delete.patient.email != current_user.email:
-                flash("Możesz usunąć tylko wizytę zarejestrowaną na Twój adres e-mail.")
+                flash("Możesz usunąć tylko wizytę zarejestrowaną na Twój adres e-mail.", 'error')
                 return redirect(url_for('show_visits'))
 
             db.session.delete(visit_to_delete)
@@ -496,6 +508,10 @@ def delete_a_visit():
 def block_term():
     all_hours = ['10:00', '11:00', '12:00', '13:00', '14:00', '15:00', '16:00',
                  '17:00', '18:00']
+
+    holidays = ['01-01', '01-06', '05-01', '05-03', '08-15', '11-01', '11-11',
+                '12-25', '12-26']
+
     form = BookVisitForm(
         email=current_user.email,
     )
@@ -512,30 +528,32 @@ def block_term():
                                           Visit.starts_at == form.starts_at.data).first():
             available_hours_to_string = ", ".join(available_hours)
             message = f"Wolne godziny do zablokowania w tym dniu to {available_hours_to_string}"
-            flash("Ten termin wizyty jest już zarezerwowany. Aby zablokować termin najpierw usuń wizytę.")
+            flash("Ten termin wizyty jest już zarezerwowany. Aby zablokować termin najpierw usuń wizytę.", 'error')
             flash(message)
             return redirect(url_for('block_term'))
 
         if selected_date <= date.today():
-            flash("Termin można zablokować jedynie w dni nadchodzące.")
+            flash("Termin można zablokować jedynie w dni nadchodzące.", 'error')
             return redirect(url_for('block_term'))
 
         if selected_date.strftime('%A') == "Saturday" or selected_date.strftime('%A') == "Sunday":
-            flash(
-                "Poradnia jest czynna od poniedziałku do piątku. Zablokować termin można jedynie w dni pracy Poradni.")
+            flash("Poradnia jest czynna od poniedziałku do piątku. Zablokować termin można jedynie w dni pracy Poradni.",
+                  'error')
             return redirect(url_for('block_term'))
+
+        if selected_date.strftime('%m-%d') in holidays:
+            flash("Poradnia w tym dniu i tak jest nieczynna.", 'error')
+            return redirect(url_for('book_a_visit'))
 
         if form.starts_at.data < datetime.strptime(available_hours[0],
                                                    '%H:%M').time() or form.starts_at.data > datetime.strptime(
             available_hours[len(available_hours) - 1], '%H:%M').time():
-            flash("Termin można zablokować w godziny pracy Poradni, od godziny 10:00 do godziny 18:00.")
+            flash("Termin można zablokować w godziny pracy Poradni, od godziny 10:00 do godziny 18:00.", 'error')
             return redirect(url_for('block_term'))
 
         blocked_term = Visit(
             date=form.date.data,
             starts_at=datetime.strptime(form.starts_at.data.strftime('%H:00'), '%H:00').time(),
-            # ends_at=form.ends_at.data,
-            confirmed=True,
             patient_id=current_user.id
         )
 

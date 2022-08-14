@@ -250,3 +250,12 @@ td {
 .schedule {
     width: 100%;
 }
+
+.error {
+    color: red;
+    text-align: center;
+    display: block;
+    font-size: 1.2em;
+    font-weight: bold;
+    letter-spacing: 0.025em;
+}
