@@ -82,7 +82,7 @@
                             <td class="field busy">Zablokowałeś termin</td>
                             {% else %}
                             {% if visit.patient.id: %}
-                            <td class="field">Nr ID: {{visit.patient.id}}; {{visit.patient.first_name}} {{visit.patient.last_name}}<br>{{visit.patient.email}}<br>{{visit.patient.mobile}}</td>
+                            <td class="field">Nr ID: {{visit.patient.id}}; {{visit.patient.first_name}} {{visit.patient.last_name}}<br>Email: {{visit.patient.email}}<br>Tel.: {{visit.patient.mobile}}</td>
                             {% else %}
                             <td class="field">Konto usunięte</td>
                             {% endif %}
