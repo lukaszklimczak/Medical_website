@@ -42,7 +42,7 @@ class User(UserMixin, db.Model):
     visit = db.relationship("Visit", backref="patient", uselist=False)  # one to one relationship
 
 
-# db.create_all()
+db.create_all()
 
 
 class BlogPost(db.Model):
@@ -55,7 +55,7 @@ class BlogPost(db.Model):
     poster_id = db.Column(db.Integer, db.ForeignKey("users.id"))
 
 
-# db.create_all()
+db.create_all()
 
 
 class Visit(db.Model):
@@ -66,7 +66,7 @@ class Visit(db.Model):
     patient_id = db.Column(db.Integer, db.ForeignKey('users.id'))
 
 
-# db.create_all()
+db.create_all()
 
 
 def admin_only(f):
