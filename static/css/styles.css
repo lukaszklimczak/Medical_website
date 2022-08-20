@@ -134,6 +134,14 @@ h1, h4 {
     background-color: #e3f2fd;
     margin: 10px;
     padding: 30px;
+    transform: translateX(0px);
+    transition: 1.1s all;
+    cursor: pointer;
+}
+
+.service:hover{
+    box-shadow: 6px 6px 40px 10px #5F4B8BFF;
+    transform: translateX(20PX);
 }
 
 .service-image {
@@ -279,8 +287,6 @@ td {
 .alert-container.active {
     top: 0;
     z-index: 5;
-
-
 }
 
 .alert-btn {
