@@ -11,9 +11,14 @@ from forms import RegisterForm, LoginForm, CreatePostForm, BookVisitForm, EditPr
 from functools import wraps
 from werkzeug.security import generate_password_hash, check_password_hash
 from sqlalchemy import func
+from flask_mail import Mail, Message
+from itsdangerous import URLSafeTimedSerializer, SignatureExpired
+from itsdangerous.exc import SignatureExpired
+from flask_wtf.csrf import CSRFProtect
 
 app = Flask(__name__)
 Bootstrap(app)
+mail = Mail(app)
 
 load_dotenv(find_dotenv())
 
@@ -27,6 +32,18 @@ ckeditor = CKEditor(app)
 login_manager = LoginManager()
 login_manager.init_app(app)
 
+app.config['MAIL_SERVER'] = 'smtp.mail.yahoo.com'
+app.config['MAIL_PORT'] = 465
+app.config['MAIL_USERNAME'] = 'e2021smtp.test@yahoo.com'
+app.config['MAIL_PASSWORD'] = 'gstfufehsceusfas'
+app.config['MAIL_USE_TLS'] = False
+app.config['MAIL_USE_SSL'] = True
+mail = Mail(app)
+
+csrf = CSRFProtect(app)
+
+s = URLSafeTimedSerializer(app.secret_key)
+
 now = date.today()
 
 
@@ -38,6 +55,7 @@ class User(UserMixin, db.Model):
     email = db.Column(db.String(120), unique=True, nullable=False)
     password = db.Column(db.String(80), unique=False, nullable=False)
     mobile = db.Column(db.Integer, unique=True, nullable=False)
+    confirmed = db.Column(db.Boolean, nullable=False, default=False)
     posts = db.relationship("BlogPost", backref="poster")
     visit = db.relationship("Visit", backref="patient", uselist=False)  # one to one relationship
 
@@ -141,6 +159,38 @@ def load_user(user_id):
     return User.query.get(int(user_id))
 
 
+@app.route('/confirm_email/<token>')
+def confirm_email(token):
+    email = s.loads(token, salt='email-confirm', max_age=86400)
+    try:
+        user = User.query.filter_by(email=email).first()
+        user.confirmed = True
+        db.session.commit()
+        flash('Twoje konto zostało potwierdzone. Teraz możesz się zalogować.')
+    except SignatureExpired:
+        flash('Link aktywacyjny wygasł. Wysłano ponowny email z linkiem')
+    return redirect(url_for('login'))
+
+
+def send_confirmation_link(token, sender, email):
+    msg = Message('Confirm Email', sender=sender, recipients=[email])
+    link = url_for('confirm_email', token=token, _external=True)
+    msg.body = f'Twój link aktywacyjny to {link}'
+    mail.send(msg)
+
+
+@app.route('/resend_confirmation_link/<email>', methods=['GET', 'POST'])
+def resend_confirmation_link(email):
+    sender = app.config['MAIL_USERNAME']
+    if request.method == 'POST':
+        if request.form.get("resend"):
+            token = s.dumps(email, salt='email-confirm')
+            send_confirmation_link(token, sender, email)
+            flash("Na podany adres e-mail wysłano link aktywacyjny. Ważność linka wygasa po 24 godzinach.")
+            return redirect(url_for("login"))
+    return render_template('unconfirmed.html')
+
+
 @app.route("/register", methods=["GET", "POST"])
 def register():
     form = RegisterForm()
@@ -161,10 +211,19 @@ def register():
             last_name=form.last_name.data,
             mobile=form.mobile.data,
         )
+
         db.session.add(new_user)
         db.session.commit()
-        login_user(new_user)
-        return redirect(url_for("about"))
+
+        email = new_user.email
+        token = s.dumps(email, salt='email-confirm')
+        sender = app.config['MAIL_USERNAME']
+
+        send_confirmation_link(token, sender, email)
+
+        flash("Na podany adres e-mail wysłano link aktywacyjny. Ważność linka wygasa po 24 godzinach.")
+        return redirect(url_for("login"))
+
     return render_template('register.html', form=form, current_user=current_user)
 
 
@@ -179,6 +238,10 @@ def login():
         if not user:
             flash("Użytkownik o takim adresie e-mail nie istnieje. Spróbuj ponownie.", 'error')
             return redirect(url_for('login'))
+        elif not user.confirmed:
+            flash("Nie potwierdzono konta. Potwierdź link aktywacyjny wysłany na Twój adres email. Jeśli nie otrzymałeś"
+                  "wiadomości z linkiem aktywacyjnym lub link wygasł, kliknij poniższy przycisk.", 'error')
+            return redirect(url_for('resend_confirmation_link', email=email))
         elif not check_password_hash(user.password, password):
             flash("Podane hasło jest nieprawidłowe. Spróbuj ponownie.", 'error')
             return redirect(url_for('login'))
@@ -190,6 +253,7 @@ def login():
 
 
 @app.route('/logout')
+@login_required
 def logout():
     logout_user()
     return redirect(url_for('about'))
