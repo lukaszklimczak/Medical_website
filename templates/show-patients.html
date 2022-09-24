@@ -34,6 +34,7 @@
                     </td>
                     <td>
                         <form action="/delete_patient" method="post">
+                            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
                             <input name="id" type="hidden" value="{{ patient.id }}">
                             <button type="submit" class="btn btn-danger btn-sm">Usuń pacjenta</button>
                         </form>

@@ -12,6 +12,13 @@
     </div>
 
     <div class="middle-container">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                <p class="{{ category }}">{{ message }}</p>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
         <img src="{{url_for('static',filename ='img/psycholog.jpg')}}" alt="Therapy" class="background-photo" />
         <div class="main-name">W GŁOWIE SIĘ NIE MIEŚCI ®</div>
         <div class="description">Poradnia Psychologiczno-Terapeutyczna w Lodzi</div>

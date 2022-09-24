@@ -14,8 +14,11 @@
                           {% endfor %}
                         {% endif %}
                     {% endwith %}
-                    {{ form.csrf_token }}
-                    {{ wtf.quick_form(form, novalidate=True, button_map={"submit": "primary"}) }}
+                    <br>
+                    <form method="post">
+                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+                        <button type="submit" class="btn btn-info left-button" name="resend" value="submit"> Wyślij ponownie link </button>
+                    </form>
                 </div>
             </div>
         </div>
