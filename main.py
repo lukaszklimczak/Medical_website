@@ -648,6 +648,13 @@ def show_patients():
 def delete_patient():
     user_id = request.form.get('id')
     patient_to_delete = User.query.get(user_id)
+
+    user_visits = Visit.query.filter(Visit.date >= date.today(), Visit.patient_id == user_id).all()
+    if user_visits:
+        for visit in user_visits:
+            db.session.delete(visit)
+            db.session.commit()
+
     db.session.delete(patient_to_delete)
     db.session.commit()
     patients = User.query.all()
@@ -700,9 +707,17 @@ def edit_profile():
 def delete_profile():
     user_id = current_user.id
     patient_to_delete = User.query.get(user_id)
+
+    user_visits = Visit.query.filter(Visit.date >= date.today(), Visit.patient_id == user_id).all()
+    if user_visits:
+        for visit in user_visits:
+            db.session.delete(visit)
+            db.session.commit()
+
     db.session.delete(patient_to_delete)
     db.session.commit()
-    return render_template('about.html')
+    logout_user()
+    return redirect(url_for('about'))
 
 
 if __name__ == "__main__":
