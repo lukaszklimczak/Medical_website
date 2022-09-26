@@ -11,12 +11,23 @@ class RegisterForm(FlaskForm):
     password = PasswordField("Hasło", validators=[DataRequired()])
     first_name = StringField("Imię", validators=[DataRequired()])
     last_name = StringField("Nazwisko", validators=[DataRequired()])
-    mobile = StringField("Telefon", validators=[DataRequired()])
+    mobile = StringField("Telefon")
     submit = SubmitField("Zarejestruj")
 
 
+class RegisterBookUnregisteredUserForm(FlaskForm):
+    email = StringField("Email/Login")
+    password = PasswordField("Hasło", validators=[DataRequired()])
+    first_name = StringField("Imię", validators=[DataRequired()])
+    last_name = StringField("Nazwisko", validators=[DataRequired()])
+    mobile = StringField("Telefon")
+    date = DateField("Data wizyty", format='%Y-%m-%d', validators=[DataRequired()])
+    starts_at = TimeField("Godzina rozpoczęcia wizyty", format='%H:%M',  validators=[DataRequired()])
+    submit = SubmitField("Zatwierdź")
+
+
 class LoginForm(FlaskForm):
-    email = StringField("Email", validators=[DataRequired()])
+    email = StringField("Email/Login", validators=[DataRequired()])
     password = PasswordField("Password", validators=[DataRequired()])
     submit = SubmitField("Zaloguj")
 

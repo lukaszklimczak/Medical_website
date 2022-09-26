@@ -27,7 +27,7 @@
                             <h3>{{ post.title|safe }}</h3>
                         </a>
                         <h6>Dodano: {{ post.date }}</h6>
-                        <p>{{ post.content[3:200]+"..." |safe }}</p>
+                        <p>{{ clean_html(post.content[3:200])+"..." |safe }}</p>
                         <p class="source">Źródło: {{ post.image_url }}</p>
                         </div>
                     </div>

@@ -7,14 +7,15 @@ import os
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy.orm import relationship
 from datetime import date, datetime, timedelta
-from forms import RegisterForm, LoginForm, CreatePostForm, BookVisitForm, EditProfileForm
+from forms import RegisterForm, RegisterBookUnregisteredUserForm, LoginForm, CreatePostForm, BookVisitForm, EditProfileForm
 from functools import wraps
 from werkzeug.security import generate_password_hash, check_password_hash
 from sqlalchemy import func
 from flask_mail import Mail, Message
-from itsdangerous import URLSafeTimedSerializer, SignatureExpired
+from itsdangerous import URLSafeTimedSerializer
 from itsdangerous.exc import SignatureExpired
 from flask_wtf.csrf import CSRFProtect
+import re
 
 app = Flask(__name__)
 Bootstrap(app)
@@ -45,6 +46,7 @@ csrf = CSRFProtect(app)
 s = URLSafeTimedSerializer(app.secret_key)
 
 now = date.today()
+CLEANR = re.compile('<.*?>|&([a-z0-9]+|#[0-9]{1,6}|#x[0-9a-f]{1,6});')
 
 
 class User(UserMixin, db.Model):
@@ -259,6 +261,14 @@ def logout():
     return redirect(url_for('about'))
 
 
+@app.context_processor
+def utility_processor():
+    def clean_html(a_string):
+        cleantext = re.sub(CLEANR, ' ', a_string)
+        return cleantext
+    return dict(clean_html=clean_html)
+
+
 @app.route('/blog', methods=['GET'])
 def show_blog():
     all_posts = BlogPost.query.all()
@@ -437,6 +447,89 @@ def book_a_visit():
             flash("Zarezerwowano wizytę.")
             return redirect(url_for('show_visits'))
     return render_template('book.html', form=form, current_user=current_user)
+
+
+@app.route('/register_book/', methods=['GET', 'POST'])
+@admin_only
+def register_book_a_visit():
+    all_hours = ['10:00', '11:00', '12:00', '13:00', '14:00', '15:00', '16:00',
+                 '17:00', '18:00']
+
+    holidays = ['01-01', '01-06', '05-01', '05-03', '08-15', '11-01', '11-11',
+                '12-25', '12-26']
+
+    form = RegisterBookUnregisteredUserForm()
+    if form.validate_on_submit():
+        selected_date = form.date.data
+        not_available_hours = db.session.query(func.strftime('%H:00', Visit.starts_at)).filter(
+            Visit.date == selected_date).all()
+        available_hours = all_hours
+        for i in range(len(not_available_hours)):
+            if not_available_hours[i][0] in available_hours:
+                available_hours.remove(not_available_hours[i][0])
+
+        if db.session.query(Visit).filter(Visit.date == form.date.data,
+                                          Visit.starts_at == datetime.strptime(form.starts_at.data.strftime('%H:00'),
+                                                                               '%H:00').time()).first():
+            available_hours_to_string = ", ".join(available_hours)
+            message = f"Dostępne godziny w tym dniu to {available_hours_to_string}"
+            flash("Ten termin wizyty jest już zarezerwowany. Wybierz inny termin wizyty.", 'error')
+            flash(message)
+            return redirect(url_for('book_a_visit'))
+
+        if selected_date <= date.today():
+            flash("Wizytę można zarezerwować jedynie w dni nadchodzące.", 'error')
+            return redirect(url_for('book_a_visit'))
+
+        if selected_date.strftime('%A') == "Saturday" or selected_date.strftime('%A') == "Sunday":
+            flash("Poradnia jest czynna od poniedziałku do piątku.\n Proszę zarezerwować termin w dni pracy Poradni.",
+                  'error')
+            return redirect(url_for('book_a_visit'))
+
+        if selected_date.strftime('%m-%d') in holidays:
+            flash("Poradnia w tym dniu jest nieczynna.\n Proszę zarezerwować termin w dni pracy Poradni.",
+                  'error')
+            return redirect(url_for('book_a_visit'))
+
+        if form.starts_at.data < datetime.strptime(available_hours[0],
+                                                   '%H:%M').time() or form.starts_at.data > datetime.strptime(
+            available_hours[len(available_hours) - 1], '%H:%M').time():
+            flash("Wizytę można zarezerwować od godziny 10:00 do godziny 18:00.", 'error')
+            return redirect(url_for('book_a_visit'))
+
+        if User.query.filter_by(email=form.email.data).first():
+            flash("Użytkownik o takim adresie e-mail został już zarejestrowany. Wybierz opcję 'Zaloguj się'", 'error')
+            return redirect(url_for('login'))
+
+        hash_and_salted_password = generate_password_hash(
+            form.password.data,
+            method='pbkdf2:sha256',
+            salt_length=8
+        )
+        new_user = User(
+            email=form.email.data,
+            password=hash_and_salted_password,
+            first_name=form.first_name.data,
+            last_name=form.last_name.data,
+            mobile=form.mobile.data,
+        )
+
+        db.session.add(new_user)
+        new_user.confirmed = True
+        db.session.commit()
+
+        new_visit = Visit(
+            date=form.date.data,
+            starts_at=datetime.strptime(form.starts_at.data.strftime('%H:00'), '%H:00').time(),
+            patient_id=new_user.id
+        )
+
+        db.session.add(new_visit)
+        db.session.commit()
+        flash("Zarezerwowano wizytę.")
+        return redirect(url_for('show_visits'))
+
+    return render_template('register-book.html', form=form)
 
 
 @app.context_processor
