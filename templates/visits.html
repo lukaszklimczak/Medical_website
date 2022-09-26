@@ -25,6 +25,7 @@
             <br>
             <a href="{{ url_for('book_a_visit') }}"><button type="button" class="btn btn-primary btn-sm">Zarezerwuj wizytę</button></a>
             {% if current_user.id == 1 %}
+            <a href="{{ url_for('register_book_a_visit') }}"><button type="button" class="btn btn-primary btn-sm">Zarejestruj pacjenta i Zarezerwuj wizytę</button></a>
             <a href="{{ url_for('delete_a_visit')}}"><button type="button" class="btn btn-danger btn-sm">Usuń wizytę</button></a>
             <a href="{{ url_for('block_term')}}"><button type="button" class="btn btn-danger btn-sm">Zablokuj termin</button></a>
             {% else%}
@@ -37,6 +38,7 @@
                 <div class="col-lg-4 col-md-12">
                 </div>
                     <div class="col-lg-8 col-md-12">
+                        <br>
                         <h1 style="color: black;">Harmonogram wizyt</h1>
                     </div>
             </div>
