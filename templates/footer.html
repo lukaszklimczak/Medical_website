@@ -1,8 +1,12 @@
 {% block footer %}
 <div class="footer">
         <div class="row">
+            <div class="wrapper">
+            <h6>To nie jest strona internetowa prawdziwej poradni. Strona powstała jedynie w celach edukacyjnych. Nie podawaj swoich prawdziwych danych osobowych.</h6>
+            </div>
             <div class="col-lg-6 col-md-6">
                 <div class="footer-column">
+                    <br>
                     <h4>W GŁOWIE SIĘ NIE MIEŚCI</h4>
                     <p>Poradnia Psychologiczno-Pedagogiczna w Lodzi</p>
                     <p>ul. Karpacka 7 lok. 22, 90-210 Lódź</p><br>
@@ -14,8 +18,8 @@
             <div class="col-lg-6 col-md-6">
                 <div class="footer-column">
                     <p></p><br>
-                    <p><a class="" href="3">Regulamin</a></p>
-                    <p><a class="" href="3">Polityka prywatności</a></p>
+                    <p><a class="" href="{{url_for('show_statute')}}">Regulamin</a></p>
+                    <p><a class="" href="{{url_for('show_statute')}}">Polityka prywatności</a></p>
                 </div>
             </div>
         </div>

@@ -813,5 +813,10 @@ def delete_profile():
     return redirect(url_for('about'))
 
 
+@app.route('/statute')
+def show_statute():
+    return render_template('statute.html')
+
+
 if __name__ == "__main__":
     app.run(debug=True)

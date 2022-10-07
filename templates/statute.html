@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+{% import "bootstrap/wtf.html" as wtf %}
+
+{% block content %}
+<main>
+    <div class="team-container">
+        <div class="wrapper">
+            <div class="row">
+                <div class="col-lg-8 col-md-10 mx-auto">
+                    <h3>Regulamin</h3>
+                    <p>To nie jest strona internetowa prawdziwej poradni psychologiczno-terapeutycznej.</p>
+                    <p>Wszystkie informacje w niej zawarte mają charakter fikcyjny.</p>
+                    <p>Pod żadnym pozorem nie podawaj swoich prawdziwych danych osobowych.
+                        Twórca strony nie ponosi żadnej odpowiedzialności wobec osób, które udostępnią swoje prawdziwe dane korzystając z niniejszej strony internetowej.
+                    </p>
+                    <p>
+                        Korzystając z niniejszej strony internetowej, wyrażasz na to zgodę. Jeśli nie wyrażasz zgody, opuść stronę.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</main>
+{% endblock %}
+
+{% block footer %}
+
+    {% include 'footer.html' %}
+
+{% endblock %}
