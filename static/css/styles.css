@@ -140,7 +140,7 @@ h1, h4 {
 }
 
 .service:hover{
-    box-shadow: 3px 3px 10px 10px #6b87b8;
+    box-shadow: 3px 3px 10px 10px #b6b5b4;
     transform: translateX(5PX);
 }
 
@@ -243,7 +243,7 @@ td {
 }
 
 .busy {
-    color: #808080;
+    color: #b6b5b4;
     font-weight: bold;
 }
 
