@@ -16,6 +16,7 @@ from itsdangerous import URLSafeTimedSerializer
 from itsdangerous.exc import SignatureExpired
 from flask_wtf.csrf import CSRFProtect
 import re
+from socket import gethostname
 
 app = Flask(__name__)
 Bootstrap(app)
@@ -819,4 +820,6 @@ def show_statute():
 
 
 if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=5000)
+    db.create_all()
+    if 'liveconsole'not in gethostname():
+        app.run()
