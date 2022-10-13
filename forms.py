@@ -3,7 +3,7 @@ from wtforms import StringField, SubmitField, PasswordField
 from wtforms.validators import DataRequired, URL
 from flask_ckeditor import CKEditorField
 from datetime import datetime, date
-from wtforms.fields.html5 import DateTimeField, DateField, TimeField
+from wtforms.fields import DateTimeField, DateField, TimeField
 
 
 class RegisterForm(FlaskForm):
